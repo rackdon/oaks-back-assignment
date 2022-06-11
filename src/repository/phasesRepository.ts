@@ -103,6 +103,21 @@ export class PhasesRepository {
     })
   }
 
+  async getPhaseById(
+    id: string,
+    projection: PhaseProjection
+  ): Promise<Either<ApiError, Phase | null>> {
+    const result = await EitherI.catchA(async () => {
+      const result = await this.pgClient.models.Phase.findByPk(id, {
+        ...this.getInclude(projection, this.pgClient),
+      })
+      return result ? this.extractPhase(result) : null
+    })
+    return result.mapLeft((e) => {
+      return manageDbErrors(e, this.logger)
+    })
+  }
+
   async deletePhaseById(id: string): Promise<Either<ApiError, number>> {
     const result = await EitherI.catchA(async () => {
       return await this.pgClient.models.Phase.destroy({ where: { id } })

@@ -2,7 +2,13 @@
 
 import { LoggerConfig } from '../../../configuration/loggerConfig'
 import { mockRequest, MockResponse } from '../utils'
-import { BadRequest, Conflict, Forbidden, Internal } from '../../../model/error'
+import {
+  BadRequest,
+  Conflict,
+  Forbidden,
+  Internal,
+  NotFound,
+} from '../../../model/error'
 import { EitherI } from '../../../model/either'
 import { Phase, PhaseCreation } from '../../../model/phases'
 import {
@@ -124,6 +130,68 @@ describe('Get phases', () => {
 
     expect(mockResponse.statusCode).toEqual(500)
     expect(phasesService.getPhases).toBeCalledWith(query)
+  })
+})
+
+describe('Get phase by id', () => {
+  const loggerConfig = new LoggerConfig()
+  const phaseId = randomUUID()
+  it('returns 200 with the phase', async () => {
+    const phase = generatePhase()
+    const phasesService: PhasesService = phasesServiceMock({
+      getPhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(phase)
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.getPhaseById(
+      mockRequest({ id: phaseId }, null, { projection: 'PhaseRaw' }),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(200)
+    expect(mockResponse.body).toEqual(phase)
+    expect(phasesService.getPhaseById).toBeCalledWith(phaseId, {
+      projection: 'PhaseRaw',
+    })
+  })
+
+  it('returns 404', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      getPhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new NotFound())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.getPhaseById(
+      mockRequest({ id: phaseId }, null, {}),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(404)
+    expect(phasesService.getPhaseById).toBeCalledWith(phaseId, {})
+  })
+
+  it('returns 500', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      getPhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Internal())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.getPhaseById(
+      mockRequest({ id: phaseId }, null, {}),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(500)
+    expect(phasesService.getPhaseById).toBeCalledWith(phaseId, {})
   })
 })
 

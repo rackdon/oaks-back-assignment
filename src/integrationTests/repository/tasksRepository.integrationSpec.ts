@@ -143,9 +143,9 @@ describe('tasksRepository', () => {
     expectRight(result).toEqual(task)
   })
 
-  it('get task by id returns internal if db error', async () => {
-    const result = await tasksRepository.getTaskById('asdf')
-    expectLeft(result, (x) => x.constructor).toEqual(Internal)
+  it('get task by id returns null if the task does not exist', async () => {
+    const result = await tasksRepository.getTaskById(randomUUID())
+    expectRight(result).toEqual(null)
   })
 
   it('Delete task by id returns 1 when task is deleted', async () => {

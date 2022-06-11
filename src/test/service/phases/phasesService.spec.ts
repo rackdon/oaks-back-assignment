@@ -2,8 +2,13 @@
 
 import { LoggerConfig } from '../../../configuration/loggerConfig'
 import { EitherI } from '../../../model/either'
-import { expectRight } from '../../utils/expects'
-import { Phase, PhaseCreation, PhasesFilters } from '../../../model/phases'
+import { expectLeft, expectRight } from '../../utils/expects'
+import {
+  Phase,
+  PhaseCreation,
+  PhaseProjection,
+  PhasesFilters,
+} from '../../../model/phases'
 import {
   generatePhase,
   generatePhaseCreation,
@@ -12,6 +17,7 @@ import { PhasesRepository } from '../../../repository/phasesRepository'
 import { phasesRepositoryMock } from '../../mocks/phases/phasesMocks'
 import { PhasesService } from '../../../service/phases/phasesService'
 import { DataWithPages, Pagination } from '../../../model/pagination'
+import { Internal, NotFound } from '../../../model/error'
 
 describe('Create phase', () => {
   it('returns repository response', async () => {
@@ -58,6 +64,56 @@ describe('Get phases', () => {
       phasesFilters,
       paginationFilters
     )
+  })
+})
+
+describe('Get phase by id', () => {
+  it('returns phase if exists', async () => {
+    const phase = generatePhase()
+    const projection: PhaseProjection = 'PhaseRaw'
+    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+      getPhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(phase)
+      }),
+    })
+    const loggerConfig = new LoggerConfig()
+    const service = new PhasesService(phasesRepository, loggerConfig)
+    const result = await service.getPhaseById(phase.id, { projection })
+
+    expectRight(result).toEqual(phase)
+    expect(phasesRepository.getPhaseById).toBeCalledWith(phase.id, projection)
+  })
+
+  it('returns not found if phase does not exist', async () => {
+    const id = 'id'
+    const projection: PhaseProjection = 'PhaseRaw'
+    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+      getPhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(null)
+      }),
+    })
+    const loggerConfig = new LoggerConfig()
+    const service = new PhasesService(phasesRepository, loggerConfig)
+    const result = await service.getPhaseById(id, { projection })
+
+    expectLeft(result, (x) => x.constructor).toEqual(NotFound)
+    expect(phasesRepository.getPhaseById).toBeCalledWith(id, projection)
+  })
+
+  it('returns left if present', async () => {
+    const id = 'id'
+    const projection: PhaseProjection = 'PhaseRaw'
+    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+      getPhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Internal())
+      }),
+    })
+    const loggerConfig = new LoggerConfig()
+    const service = new PhasesService(phasesRepository, loggerConfig)
+    const result = await service.getPhaseById(id, { projection })
+
+    expectLeft(result, (x) => x.constructor).toEqual(Internal)
+    expect(phasesRepository.getPhaseById).toBeCalledWith(id, projection)
   })
 })
 

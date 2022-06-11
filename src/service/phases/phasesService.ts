@@ -1,7 +1,7 @@
 import winston from 'winston'
 import { LoggerConfig } from '../../configuration/loggerConfig'
-import { Either } from '../../model/either'
-import { ApiError } from '../../model/error'
+import { Either, EitherI } from '../../model/either'
+import { ApiError, NotFound } from '../../model/error'
 import { PhasesRepository } from '../../repository/phasesRepository'
 import {
   PaginatedPhasesFilters,
@@ -11,10 +11,12 @@ import {
   toPhasesFilters,
 } from '../../model/phases'
 import { DataWithPages, toPagination } from '../../model/pagination'
+import { Task } from '../../model/tasks'
 
 export class PhasesService {
   readonly logger: winston.Logger
   readonly phasesRepository: PhasesRepository
+  readonly defaultPhase: PhaseProjection = 'PhaseRaw'
 
   constructor(phasesRepository: PhasesRepository, loggerConfig: LoggerConfig) {
     this.logger = loggerConfig.create(PhasesService.name)
@@ -32,12 +34,27 @@ export class PhasesService {
   ): Promise<Either<ApiError, DataWithPages<Phase>>> {
     const phasesFilters = toPhasesFilters(filters)
     const paginationFilters = toPagination(filters)
-    const projection: PhaseProjection = filters.projection || 'PhaseRaw'
+    const projection: PhaseProjection = filters.projection || this.defaultPhase
     return this.phasesRepository.getPhases(
       projection,
       phasesFilters,
       paginationFilters
     )
+  }
+
+  async getPhaseById(
+    id: string,
+    { projection }: { projection?: PhaseProjection }
+  ): Promise<Either<ApiError, Task>> {
+    const result = await this.phasesRepository.getPhaseById(
+      id,
+      projection || this.defaultPhase
+    )
+    return result
+      .map((phase: Phase | null) => {
+        return phase ? phase : EitherI.Left(new NotFound())
+      })
+      .bind()
   }
 
   async deletePhaseById(id: string): Promise<Either<ApiError, number>> {

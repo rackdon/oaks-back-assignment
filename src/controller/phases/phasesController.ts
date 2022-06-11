@@ -8,6 +8,7 @@ import {
   Conflict,
   Forbidden,
   Internal,
+  NotFound,
 } from '../../model/error'
 import { PhasesService } from '../../service/phases/phasesService'
 import { Phase } from '../../model/phases'
@@ -65,6 +66,32 @@ export class PhasesController {
         }
       },
       (phases: DataWithPages<Phase>) => res.status(200).json(phases)
+    )
+  }
+
+  getPhaseById = async (req, res): Promise<void> => {
+    const result = await this.phasesService.getPhaseById(
+      req.params.id,
+      req.query
+    )
+    result.fold(
+      (error: ApiError) => {
+        switch (error?.constructor) {
+          case NotFound: {
+            res.status(404).send()
+            break
+          }
+          case Internal: {
+            res.status(500).send()
+            break
+          }
+          default: {
+            this.logger.warn(`Unexpected error: ${error}`)
+            res.status(500).send()
+          }
+        }
+      },
+      (phase: Phase) => res.status(200).json(phase)
     )
   }
 

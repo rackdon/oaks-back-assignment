@@ -9,6 +9,7 @@ export function phasesServiceMock(
     logger: args.logger,
     createPhase: args.createPhase,
     getPhases: args.getPhases,
+    getPhaseById: args.getPhaseById,
     deletePhaseById: args.deletePhaseById,
   }
 }
@@ -21,6 +22,7 @@ export function phasesRepositoryMock(
     logger: args.logger,
     insertPhase: args.insertPhase,
     getPhases: args.getPhases,
+    getPhaseById: args.getPhaseById,
     deletePhaseById: args.deletePhaseById,
   }
 }

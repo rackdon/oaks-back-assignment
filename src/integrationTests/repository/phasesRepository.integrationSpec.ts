@@ -150,6 +150,31 @@ describe('phasesRepository', () => {
     expectRight(result).toEqual({ data: [phase2], pages: 1 })
   })
 
+  it('get phase by id returns the phase with raw projection', async () => {
+    const phase: Phase = await factory.insertPhase()
+    const result = await phasesRepository.getPhaseById(phase.id, 'PhaseRaw')
+    expectRight(result).toEqual(phase)
+  })
+
+  it('get phase by id returns the phase with phase with tasks projection', async () => {
+    const phase: Phase = await factory.insertPhase()
+    const task: Omit<Task, 'phaseId'> = await factory.insertTask(
+      phase.id,
+      generateTask(undefined, phase.id)
+    )
+    delete task['phaseId']
+    const result = await phasesRepository.getPhaseById(
+      phase.id,
+      'PhaseWithTasks'
+    )
+    expectRight(result).toEqual({ ...phase, tasks: [task] })
+  })
+
+  it('get task by id returns null if the task does not exist', async () => {
+    const result = await phasesRepository.getPhaseById(randomUUID(), 'PhaseRaw')
+    expectRight(result).toEqual(null)
+  })
+
   it('Delete phase by id returns 1 when phase is deleted', async () => {
     const phase: PhaseRaw = await factory.insertPhase()
     const result = await phasesRepository.deletePhaseById(phase.id)

@@ -17,7 +17,7 @@ import { DataWithPages, Pagination } from '../../../model/pagination'
 import { PhasesRepository } from '../../../repository/phasesRepository'
 import { phasesRepositoryMock } from '../../mocks/phases/phasesMocks'
 import { PhasesService } from '../../../service/phases/phasesService'
-import { NotFound } from '../../../model/error'
+import { Internal, NotFound } from '../../../model/error'
 
 describe('Create task', () => {
   it('returns repository response', async () => {
@@ -93,6 +93,21 @@ describe('Get task by id', () => {
     const result = await service.getTaskById(id)
 
     expectLeft(result, (x) => x.constructor).toEqual(NotFound)
+    expect(tasksRepository.getTaskById).toBeCalledWith(id)
+  })
+
+  it('returns left if present', async () => {
+    const id = 'id'
+    const tasksRepository: TasksRepository = tasksRepositoryMock({
+      getTaskById: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Internal())
+      }),
+    })
+    const loggerConfig = new LoggerConfig()
+    const service = new TasksService(tasksRepository, loggerConfig)
+    const result = await service.getTaskById(id)
+
+    expectLeft(result, (x) => x.constructor).toEqual(Internal)
     expect(tasksRepository.getTaskById).toBeCalledWith(id)
   })
 })
