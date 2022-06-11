@@ -5,7 +5,10 @@ import { mockRequest, MockResponse } from '../utils'
 import { Conflict, Internal } from '../../../model/error'
 import { EitherI } from '../../../model/either'
 import { Phase, PhaseCreation } from '../../../model/phases'
-import { generatePhase, generatePhaseCreation } from '../../utils/generators/phasesGenerator'
+import {
+  generatePhase,
+  generatePhaseCreation,
+} from '../../utils/generators/phasesGenerator'
 import { PhasesService } from '../../../service/phases/phasesService'
 import { phasesServiceMock } from '../../mocks/phases/phasesMocks'
 import { PhasesController } from '../../../controller/phases/phasesController'
@@ -69,4 +72,3 @@ describe('Create phase', () => {
     expect(phasesService.createPhase).toBeCalledWith(phaseCreation)
   })
 })
-

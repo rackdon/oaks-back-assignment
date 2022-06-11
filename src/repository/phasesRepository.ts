@@ -18,9 +18,7 @@ export class PhasesRepository {
     this.logger = loggerConfig.create(PhasesRepository.name)
   }
 
-  async insertPhase({
-    name,
-  }: PhaseCreation): Promise<Either<ApiError, Phase>> {
+  async insertPhase({ name }: PhaseCreation): Promise<Either<ApiError, Phase>> {
     const result = await EitherI.catchA(async () => {
       const result = await this.pgClient.models.Phase.create({
         name,

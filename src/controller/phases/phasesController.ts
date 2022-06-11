@@ -2,11 +2,7 @@
 
 import winston from 'winston'
 import { LoggerConfig } from '../../configuration/loggerConfig'
-import {
-  ApiError,
-  Conflict,
-  Internal,
-} from '../../model/error'
+import { ApiError, Conflict, Internal } from '../../model/error'
 import { PhasesService } from '../../service/phases/phasesService'
 import { Phase } from '../../model/phases'
 

@@ -3,11 +3,9 @@ import { randomUUID } from 'crypto'
 import { Phase, PhaseCreation } from '../../../model/phases'
 import { STRING_LIMIT } from './constants'
 
-export function generatePhaseCreation(
-  name?: string,
-): PhaseCreation {
+export function generatePhaseCreation(name?: string): PhaseCreation {
   return {
-    name: name || faker.random.alpha(STRING_LIMIT)
+    name: name || faker.random.alpha(STRING_LIMIT),
   }
 }
 

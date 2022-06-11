@@ -17,7 +17,7 @@ export class PhasesEntity {
     done: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false
+      defaultValue: false,
     },
     createdOn: {
       type: DataTypes.DATE,

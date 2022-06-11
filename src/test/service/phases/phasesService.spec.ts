@@ -4,7 +4,10 @@ import { LoggerConfig } from '../../../configuration/loggerConfig'
 import { EitherI } from '../../../model/either'
 import { expectRight } from '../../utils/expects'
 import { Phase, PhaseCreation } from '../../../model/phases'
-import { generatePhase, generatePhaseCreation } from '../../utils/generators/phasesGenerator'
+import {
+  generatePhase,
+  generatePhaseCreation,
+} from '../../utils/generators/phasesGenerator'
 import { PhasesRepository } from '../../../repository/phasesRepository'
 import { phasesRepositoryMock } from '../../mocks/phases/phasesMocks'
 import { PhasesService } from '../../../service/phases/phasesService'
@@ -26,4 +29,3 @@ describe('Create phase', () => {
     expect(phasesRepository.insertPhase).toBeCalledWith(phaseCreation)
   })
 })
-

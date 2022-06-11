@@ -1,7 +1,9 @@
 import { PhasesRepository } from '../../../repository/phasesRepository'
 import { PhasesService } from '../../../service/phases/phasesService'
 
-export function phasesServiceMock(args: Record<string, unknown>): PhasesService {
+export function phasesServiceMock(
+  args: Record<string, unknown>
+): PhasesService {
   return <PhasesService>{
     phasesRepository: args.phasesRepository,
     logger: args.logger,
