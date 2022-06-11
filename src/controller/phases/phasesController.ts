@@ -2,7 +2,13 @@
 
 import winston from 'winston'
 import { LoggerConfig } from '../../configuration/loggerConfig'
-import { ApiError, BadRequest, Conflict, Forbidden, Internal } from '../../model/error'
+import {
+  ApiError,
+  BadRequest,
+  Conflict,
+  Forbidden,
+  Internal,
+} from '../../model/error'
 import { PhasesService } from '../../service/phases/phasesService'
 import { Phase } from '../../model/phases'
 import { DataWithPages } from '../../model/pagination'
@@ -61,7 +67,6 @@ export class PhasesController {
       (phases: DataWithPages<Phase>) => res.status(200).json(phases)
     )
   }
-
 
   deletePhaseById = async (req, res): Promise<void> => {
     const result = await this.phasesService.deletePhaseById(req.params.id)
