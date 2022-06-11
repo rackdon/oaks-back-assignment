@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:11-alpine
+    container_name: oaks_db
+    ports:
+      - 5432:5432
+    environment:
+        - POSTGRES_HOST_AUTH_METHOD=trust
+
+    volumes:
+      - ./provision/sql:/docker-entrypoint-initdb.d/
+      - oaks-data:/var/lib/postgresql/data
+
+volumes:
+  oaks-data:
+
+

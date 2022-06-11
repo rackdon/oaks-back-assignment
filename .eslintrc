@@ -1,0 +1,29 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "prettier",
+    "jest"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+  ],
+  "rules": {
+    "no-console": 1,
+    "prettier/prettier": 2,
+    "no-extra-boolean-cast": [0],
+    "@typescript-eslint/semi": ["error", "never"],
+    "@typescript-eslint/no-empty-function": ["error", { "allow": ["asyncFunctions"] }],
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/no-extra-non-null-assertion": "off",
+    "@typescript-eslint/no-non-null-assertion": "off"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "jest/globals": true
+  }
+} 

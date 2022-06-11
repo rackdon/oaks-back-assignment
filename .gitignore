@@ -1,0 +1,7 @@
+build
+node_modules
+coverage
+coverageIntegration
+.DS_Store
+.idea
+.vscode
