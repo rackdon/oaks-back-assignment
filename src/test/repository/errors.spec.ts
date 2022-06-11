@@ -1,4 +1,4 @@
-import { Conflict, Internal } from '../../model/error'
+import { BadRequest, Conflict, Internal } from '../../model/error'
 import { LoggerConfig } from '../../configuration/loggerConfig'
 import { manageDbErrors } from '../../repository/errors'
 
@@ -11,6 +11,16 @@ describe('Manage db errors', () => {
       errors: [{ message: 'a' }, { message: 'b' }],
     }
     const response = new Conflict(['a', 'b'])
+    const result = manageDbErrors(error, logger)
+    expect(result).toEqual(response)
+  })
+
+  it('returns bad request when SequelizeForeignKeyConstraintError', async () => {
+    const error = {
+      name: 'SequelizeForeignKeyConstraintError',
+      message: 'message',
+    }
+    const response = new BadRequest(['message'])
     const result = manageDbErrors(error, logger)
     expect(result).toEqual(response)
   })

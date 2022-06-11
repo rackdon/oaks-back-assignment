@@ -47,7 +47,7 @@ describe('phasesRepository', () => {
     }).toEqual({ name, done: false })
   })
 
-  it('insertUser returns conflict', async () => {
+  it('insertPhase returns conflict', async () => {
     const name = 'name'
     await factory.insertPhase(generatePhase(undefined, name))
     const result = await phasesRepository.insertPhase({ name })

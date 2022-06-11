@@ -2,6 +2,8 @@
 import { Sequelize } from 'sequelize'
 import { Phase } from '../../model/phases'
 import { generatePhase } from '../../test/utils/generators/phasesGenerator'
+import { Task } from '../../model/tasks'
+import { generateTask } from '../../test/utils/generators/tasksGenerator'
 
 export class Factory {
   readonly client: Sequelize
@@ -46,7 +48,15 @@ export class Factory {
   }
 
   async insertPhase(phase?: Phase): Promise<Phase> {
-    const insertedUser = await this.insert('phases', phase || generatePhase())
-    return this.parseKeys<Phase>(insertedUser)
+    const insertedPhase = await this.insert('phases', phase || generatePhase())
+    return this.parseKeys<Phase>(insertedPhase)
+  }
+
+  async insertTask(phaseId: string, task?: Task): Promise<Phase> {
+    const insertedTask = await this.insert(
+      'tasks',
+      task || generateTask(undefined, phaseId)
+    )
+    return this.parseKeys<Phase>(insertedTask)
   }
 }
