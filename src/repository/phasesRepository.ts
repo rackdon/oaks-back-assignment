@@ -66,6 +66,19 @@ export class PhasesRepository {
     }
   }
 
+  private extractPhase(phaseModel): Phase {
+    const phase = phaseModel.get()
+    if (phase.tasks) {
+      phase.tasks = phase.tasks.map((taskModel) => {
+        const task = taskModel.get()
+        delete task.phase_id
+        delete task.phaseId
+        return task
+      })
+    }
+    return phase
+  }
+
   async getPhases(
     projection: PhaseProjection,
     filters: PhasesFilters,
@@ -81,18 +94,7 @@ export class PhasesRepository {
     const result = await EitherI.catchA(async () => {
       const phases = await this.pgClient.models.Phase.findAndCountAll(query)
       return {
-        data: phases.rows.map((phaseModel) => {
-          const phase = phaseModel.get()
-          if (phase.tasks) {
-            phase.tasks = phase.tasks.map((taskModel) => {
-              const task = taskModel.get()
-              delete task.phase_id
-              delete task.phaseId
-              return task
-            })
-          }
-          return phase
-        }),
+        data: phases.rows.map(this.extractPhase),
         pages: getPages(phases.count, pagination.pageSize),
       }
     })
