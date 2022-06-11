@@ -7,6 +7,7 @@ export function tasksServiceMock(args: Record<string, unknown>): TasksService {
     logger: args.logger,
     createTask: args.createTask,
     getTasks: args.getTasks,
+    deleteTaskById: args.deleteTaskById,
   }
 }
 
@@ -18,5 +19,6 @@ export function tasksRepositoryMock(
     logger: args.logger,
     insertTask: args.insertTask,
     getTasks: args.getTasks,
+    deleteTaskById: args.deleteTaskById,
   }
 }

@@ -64,3 +64,20 @@ describe('Get tasks', () => {
     )
   })
 })
+
+describe('Delete task by id', () => {
+  it('returns repository response', async () => {
+    const id = 'id'
+    const tasksRepository: TasksRepository = tasksRepositoryMock({
+      deleteTaskById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(1)
+      }),
+    })
+    const loggerConfig = new LoggerConfig()
+    const service = new TasksService(tasksRepository, loggerConfig)
+    const result = await service.deleteTaskById(id)
+
+    expectRight(result).toEqual(1)
+    expect(tasksRepository.deleteTaskById).toBeCalledWith(id)
+  })
+})

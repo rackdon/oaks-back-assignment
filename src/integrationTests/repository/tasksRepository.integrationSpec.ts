@@ -140,4 +140,21 @@ describe('tasksRepository', () => {
     )
     expectRight(result).toEqual({ data: [task2], pages: 1 })
   })
+
+  it('Delete task by id returns 1 when task is deleted', async () => {
+    const phase1: Phase = await factory.insertPhase()
+    const task1: Task = await factory.insertTask(
+      phase1.id,
+      generateTask(undefined, phase1.id, 'a', true)
+    )
+    const result = await tasksRepository.deleteTaskById(task1.id)
+
+    expectRight(result).toEqual(1)
+  })
+
+  it('Delete task by id returns 0 when task does not exists', async () => {
+    const result = await tasksRepository.deleteTaskById(randomUUID())
+
+    expectRight(result).toEqual(0)
+  })
 })

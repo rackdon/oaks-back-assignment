@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-import { IsNotEmpty, IsString } from 'class-validator'
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator'
 import { TaskCreation } from '../../../model/tasks'
 
 export class TasksCreationValidator {
@@ -8,8 +8,7 @@ export class TasksCreationValidator {
   @IsNotEmpty()
   name!: string
 
-  @IsString()
-  @IsNotEmpty()
+  @IsUUID()
   phaseId!: string
   private constructor(obj: Record<string, any>) {
     Object.assign(this, obj)

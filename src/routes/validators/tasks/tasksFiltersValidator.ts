@@ -1,6 +1,11 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-import { IsBooleanString, IsNotEmpty, IsOptional } from 'class-validator'
+import {
+  IsBooleanString,
+  IsNotEmpty,
+  IsOptional,
+  IsUUID,
+} from 'class-validator'
 import { PaginationValidator } from '../paginationValidator'
 import { PaginatedTasksFilters } from '../../../model/tasks'
 
@@ -14,7 +19,7 @@ export class TasksFilterValidator extends PaginationValidator {
   done!: boolean
 
   @IsOptional()
-  @IsNotEmpty()
+  @IsUUID()
   phaseId!: Date
 
   private constructor(obj: Record<string, any>) {

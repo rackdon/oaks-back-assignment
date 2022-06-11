@@ -41,5 +41,7 @@ export class Routes {
       validateQueryParams(TasksFilterValidator.ValidationInstance),
       tasksController.getTasks
     )
+
+    this.router.delete('/tasks/:id', tasksController.deleteTaskById)
   }
 }

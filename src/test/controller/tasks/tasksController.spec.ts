@@ -12,6 +12,7 @@ import {
 import { TasksService } from '../../../service/tasks/tasksService'
 import { tasksServiceMock } from '../../mocks/tasks/tasksMocks'
 import { TasksController } from '../../../controller/tasks/tasksController'
+import { randomUUID } from 'crypto'
 
 describe('Create task', () => {
   const loggerConfig = new LoggerConfig()
@@ -70,5 +71,45 @@ describe('Create task', () => {
 
     expect(mockResponse.statusCode).toEqual(500)
     expect(tasksService.createTask).toBeCalledWith(taskCreation)
+  })
+})
+
+describe('Delete task by id', () => {
+  const loggerConfig = new LoggerConfig()
+  const taskId = randomUUID()
+  it('returns 204', async () => {
+    const tasksService: TasksService = tasksServiceMock({
+      deleteTaskById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(1)
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new TasksController(tasksService, loggerConfig)
+
+    await controller.deleteTaskById(
+      mockRequest({ id: taskId }, null, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(204)
+    expect(tasksService.deleteTaskById).toBeCalledWith(taskId)
+  })
+
+  it('returns 500', async () => {
+    const tasksService: TasksService = tasksServiceMock({
+      deleteTaskById: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Internal())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new TasksController(tasksService, loggerConfig)
+
+    await controller.deleteTaskById(
+      mockRequest({ id: taskId }, null, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(500)
+    expect(tasksService.deleteTaskById).toBeCalledWith(taskId)
   })
 })

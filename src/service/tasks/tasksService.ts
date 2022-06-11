@@ -33,4 +33,8 @@ export class TasksService {
     const paginationFilters = toPagination(filters)
     return this.tasksRepository.getTasks(tasksFilters, paginationFilters)
   }
+
+  async deleteTaskById(id: string): Promise<Either<ApiError, number>> {
+    return this.tasksRepository.deleteTaskById(id)
+  }
 }

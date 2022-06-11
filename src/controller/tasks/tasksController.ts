@@ -61,4 +61,23 @@ export class TasksController {
       (tasks: DataWithPages<Task>) => res.status(200).json(tasks)
     )
   }
+
+  deleteTaskById = async (req, res): Promise<void> => {
+    const result = await this.tasksService.deleteTaskById(req.params.id)
+    result.fold(
+      (error: ApiError) => {
+        switch (error?.constructor) {
+          case Internal: {
+            res.status(500).send()
+            break
+          }
+          default: {
+            this.logger.warn(`Unexpected error: ${error}`)
+            res.status(500).send()
+          }
+        }
+      },
+      () => res.status(204).send()
+    )
+  }
 }
