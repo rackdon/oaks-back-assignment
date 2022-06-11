@@ -60,7 +60,11 @@ export class TasksRepository {
     const result = await EitherI.catchA(async () => {
       const phases = await this.pgClient.models.Task.findAndCountAll(query)
       return {
-        data: phases.rows.map((x) => x.get()),
+        data: phases.rows.map((x) => {
+          const task = x.get()
+          delete task.phase_id
+          return task
+        }),
         pages: getPages(phases.count, pagination.pageSize),
       }
     })

@@ -3,11 +3,12 @@
 import {
   IsBooleanString,
   IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
 } from 'class-validator'
 import { PaginationValidator } from '../paginationValidator'
-import { PaginatedPhasesFilters } from '../../../model/phases'
+import { PaginatedPhasesFilters, PhaseProjection } from '../../../model/phases'
 
 export class PhasesFilterValidator extends PaginationValidator {
   @IsOptional()
@@ -26,6 +27,10 @@ export class PhasesFilterValidator extends PaginationValidator {
   @IsDateString()
   createdAfter!: Date
 
+  @IsOptional()
+  @IsEnum(['PhaseRaw', 'PhaseWithTasks'])
+  projection!: PhaseProjection
+
   private constructor(obj: Record<string, any>) {
     super()
     Object.assign(this, obj)
@@ -39,6 +44,7 @@ export class PhasesFilterValidator extends PaginationValidator {
       done: false,
       createdBefore: new Date(),
       createdAfter: new Date(),
+      projection: 'PhaseRaw',
       page: 1,
       pageSize: 1,
       sort: '',

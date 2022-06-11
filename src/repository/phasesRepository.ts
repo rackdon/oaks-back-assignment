@@ -7,7 +7,12 @@ import { Op, Sequelize } from 'sequelize'
 import { manageDbErrors } from './errors'
 import { ApiError } from '../model/error'
 import { Either, EitherI } from '../model/either'
-import { Phase, PhaseCreation, PhasesFilters } from '../model/phases'
+import {
+  Phase,
+  PhaseCreation,
+  PhaseProjection,
+  PhasesFilters,
+} from '../model/phases'
 import { DataWithPages, Pagination } from '../model/pagination'
 import { getPages, getPaginationQuery } from './pagination'
 
@@ -49,17 +54,45 @@ export class PhasesRepository {
     return filters
   }
 
+  private getInclude(
+    projection: PhaseProjection,
+    pgClient: Sequelize
+  ): Record<string, unknown> {
+    switch (projection) {
+      case 'PhaseRaw':
+        return {}
+      case 'PhaseWithTasks':
+        return { include: { model: pgClient.models.Task, as: 'tasks' } }
+    }
+  }
+
   async getPhases(
+    projection: PhaseProjection,
     filters: PhasesFilters,
     pagination: Pagination
   ): Promise<Either<ApiError, DataWithPages<Phase>>> {
     const paginationQuery = getPaginationQuery(pagination)
     const phaseFilters = this.getFilters(filters)
-    const query = { ...paginationQuery, where: phaseFilters }
+    const query = {
+      ...paginationQuery,
+      where: phaseFilters,
+      ...this.getInclude(projection, this.pgClient),
+    }
     const result = await EitherI.catchA(async () => {
       const phases = await this.pgClient.models.Phase.findAndCountAll(query)
       return {
-        data: phases.rows.map((x) => x.get()),
+        data: phases.rows.map((phaseModel) => {
+          const phase = phaseModel.get()
+          if (phase.tasks) {
+            phase.tasks = phase.tasks.map((taskModel) => {
+              const task = taskModel.get()
+              delete task.phase_id
+              delete task.phaseId
+              return task
+            })
+          }
+          return phase
+        }),
         pages: getPages(phases.count, pagination.pageSize),
       }
     })

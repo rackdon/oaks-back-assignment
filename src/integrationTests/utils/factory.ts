@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { Sequelize } from 'sequelize'
-import { Phase } from '../../model/phases'
+import { Phase, PhaseRaw } from '../../model/phases'
 import { generatePhase } from '../../test/utils/generators/phasesGenerator'
 import { Task } from '../../model/tasks'
 import { generateTask } from '../../test/utils/generators/tasksGenerator'
@@ -47,9 +47,9 @@ export class Factory {
     return result[0][0]
   }
 
-  async insertPhase(phase?: Phase): Promise<Phase> {
+  async insertPhase(phase?: Phase): Promise<PhaseRaw> {
     const insertedPhase = await this.insert('phases', phase || generatePhase())
-    return this.parseKeys<Phase>(insertedPhase)
+    return this.parseKeys<PhaseRaw>(insertedPhase)
   }
 
   async insertTask(phaseId: string, task?: Task): Promise<Task> {

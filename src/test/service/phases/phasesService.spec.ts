@@ -54,6 +54,7 @@ describe('Get phases', () => {
 
     expectRight(result).toEqual(response)
     expect(phasesRepository.getPhases).toBeCalledWith(
+      'PhaseRaw',
       phasesFilters,
       paginationFilters
     )

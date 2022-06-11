@@ -1,6 +1,7 @@
 import { PaginationFilters } from './pagination'
+import { Task } from './tasks'
 
-export interface Phase {
+export interface PhaseRaw {
   id: string
   name: string
   done: boolean
@@ -8,9 +9,13 @@ export interface Phase {
   updatedOn: Date
 }
 
-export type PhaseCreation = Pick<Phase, 'name'>
+export type PhaseWithTasks = PhaseRaw & { tasks: Omit<Task, 'phaseId'>[] }
 
-export type PhaseEdition = Partial<Pick<Phase, 'name' | 'done'>>
+export type Phase = PhaseRaw | PhaseWithTasks
+
+export type PhaseCreation = Pick<PhaseRaw, 'name'>
+
+export type PhaseEdition = Partial<Pick<PhaseRaw, 'name' | 'done'>>
 
 export interface PhasesFilters {
   name?: string
@@ -33,4 +38,7 @@ export function toPhasesFilters({
   }
 }
 
-export type PaginatedPhasesFilters = PhasesFilters & PaginationFilters
+export type PhaseProjection = 'PhaseRaw' | 'PhaseWithTasks'
+
+export type PaginatedPhasesFilters = PhasesFilters &
+  PaginationFilters & { projection?: PhaseProjection }

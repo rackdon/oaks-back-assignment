@@ -7,6 +7,7 @@ import {
   PaginatedPhasesFilters,
   Phase,
   PhaseCreation,
+  PhaseProjection,
   toPhasesFilters,
 } from '../../model/phases'
 import { DataWithPages, toPagination } from '../../model/pagination'
@@ -31,7 +32,12 @@ export class PhasesService {
   ): Promise<Either<ApiError, DataWithPages<Phase>>> {
     const phasesFilters = toPhasesFilters(filters)
     const paginationFilters = toPagination(filters)
-    return this.phasesRepository.getPhases(phasesFilters, paginationFilters)
+    const projection: PhaseProjection = filters.projection || 'PhaseRaw'
+    return this.phasesRepository.getPhases(
+      projection,
+      phasesFilters,
+      paginationFilters
+    )
   }
 
   async deletePhaseById(id: string): Promise<Either<ApiError, number>> {

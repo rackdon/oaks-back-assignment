@@ -8,7 +8,7 @@ import { ApiError, Conflict, Forbidden } from '../../model/error'
 import { Either } from '../../model/either'
 import { getDatabaseTestConfig } from '../utils/databaseTestConfig'
 import { PhasesRepository } from '../../repository/phasesRepository'
-import { Phase } from '../../model/phases'
+import { Phase, PhaseRaw, PhaseWithTasks } from '../../model/phases'
 import { expectLeft, expectRight } from '../../test/utils/expects'
 import { generatePhase } from '../../test/utils/generators/phasesGenerator'
 import { generatePagination } from '../../test/utils/generators/paginationGenerator'
@@ -57,45 +57,57 @@ describe('phasesRepository', () => {
     expectLeft(result).toEqual(new Conflict(['name must be unique']))
   })
 
-  it('getPhases returns all phases', async () => {
+  it('getPhases returns all phases with PhaseRaw projection', async () => {
     const firstDate = new Date()
     const secondDate = new Date(firstDate.getTime() + 3600000)
-    const phase1: Phase = await factory.insertPhase(
+    const phase1: PhaseRaw = await factory.insertPhase(
       generatePhase(undefined, 'a', true, firstDate)
     )
-    const phase2: Phase = await factory.insertPhase(
+    const phase2: PhaseRaw = await factory.insertPhase(
       generatePhase(undefined, 'b', false, secondDate)
     )
-    const result = await phasesRepository.getPhases({}, generatePagination())
+    const result = await phasesRepository.getPhases(
+      'PhaseRaw',
+      {},
+      generatePagination()
+    )
     expectRight(result).toEqual({ data: [phase1, phase2], pages: 1 })
   })
 
   it('getPhases returns all phases that match name query', async () => {
     const firstDate = new Date()
     const secondDate = new Date(firstDate.getTime() + 3600000)
-    const phase1: Phase = await factory.insertPhase(
+    const phase1: PhaseRaw = await factory.insertPhase(
       generatePhase(undefined, 'a', true, firstDate)
     )
-    const phase2: Phase = await factory.insertPhase(
+    const phase2: PhaseRaw = await factory.insertPhase(
       generatePhase(undefined, 'b', false, secondDate)
     )
+    const task: Omit<Task, 'phaseId'> = await factory.insertTask(
+      phase2.id,
+      generateTask(undefined, phase2.id, 'a', true)
+    )
+    delete task['phaseId']
+    const resultData: PhaseWithTasks = { ...phase2, tasks: [task] }
     const result = await phasesRepository.getPhases(
+      'PhaseWithTasks',
       { name: phase2.name },
       generatePagination()
     )
-    expectRight(result).toEqual({ data: [phase2], pages: 1 })
+    expectRight(result).toEqual({ data: [resultData], pages: 1 })
   })
 
   it('getPhases returns all phases that match done query', async () => {
     const firstDate = new Date()
     const secondDate = new Date(firstDate.getTime() + 3600000)
-    const phase1: Phase = await factory.insertPhase(
+    const phase1: PhaseRaw = await factory.insertPhase(
       generatePhase(undefined, 'a', true, firstDate)
     )
-    const phase2: Phase = await factory.insertPhase(
+    const phase2: PhaseRaw = await factory.insertPhase(
       generatePhase(undefined, 'b', false, secondDate)
     )
     const result = await phasesRepository.getPhases(
+      'PhaseRaw',
       { done: false },
       generatePagination()
     )
@@ -106,13 +118,14 @@ describe('phasesRepository', () => {
     const firstDate = new Date()
     const secondDate = new Date(firstDate.getTime() + 7500000)
     const queryDate = new Date(secondDate.getTime() + 1000)
-    const phase1: Phase = await factory.insertPhase(
+    const phase1: PhaseRaw = await factory.insertPhase(
       generatePhase(undefined, 'a', true, firstDate)
     )
-    const phase2: Phase = await factory.insertPhase(
+    const phase2: PhaseRaw = await factory.insertPhase(
       generatePhase(undefined, 'b', false, secondDate)
     )
     const result = await phasesRepository.getPhases(
+      'PhaseRaw',
       { createdBefore: queryDate },
       generatePagination()
     )
@@ -123,13 +136,14 @@ describe('phasesRepository', () => {
     const firstDate = new Date()
     const secondDate = new Date(firstDate.getTime() + 7500000)
     const queryDate = new Date(secondDate.getTime() - 1000)
-    const phase1: Phase = await factory.insertPhase(
+    const phase1: PhaseRaw = await factory.insertPhase(
       generatePhase(undefined, 'a', true, firstDate)
     )
-    const phase2: Phase = await factory.insertPhase(
+    const phase2: PhaseRaw = await factory.insertPhase(
       generatePhase(undefined, 'b', false, secondDate)
     )
     const result = await phasesRepository.getPhases(
+      'PhaseRaw',
       { createdAfter: secondDate },
       generatePagination()
     )
@@ -137,7 +151,7 @@ describe('phasesRepository', () => {
   })
 
   it('Delete phase by id returns 1 when phase is deleted', async () => {
-    const phase: Phase = await factory.insertPhase()
+    const phase: PhaseRaw = await factory.insertPhase()
     const result = await phasesRepository.deletePhaseById(phase.id)
 
     expectRight(result).toEqual(1)
@@ -150,7 +164,7 @@ describe('phasesRepository', () => {
   })
 
   it('Delete phase by id returns error when task are owned by this phase', async () => {
-    const phase1: Phase = await factory.insertPhase()
+    const phase1: PhaseRaw = await factory.insertPhase()
     const task1: Task = await factory.insertTask(
       phase1.id,
       generateTask(undefined, phase1.id, 'a', true)
