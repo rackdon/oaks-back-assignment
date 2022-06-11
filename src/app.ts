@@ -10,6 +10,7 @@ import {
   serverConfig,
 } from './dependencyInjection/configInjections'
 import { serverHealth } from './dependencyInjection/serverHealthInjections'
+import { routes } from './dependencyInjection/routesInjections'
 
 const app: express.Application = express()
 const server = http.createServer(app)
@@ -26,9 +27,7 @@ createTerminus(server, {
   onShutdown: serverHealth.onShutdown,
 })
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+app.use('/api', express.json(), routes.router)
 
 app.use(Sentry.Handlers.errorHandler())
 
