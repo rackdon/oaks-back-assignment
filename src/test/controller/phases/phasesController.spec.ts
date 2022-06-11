@@ -2,7 +2,7 @@
 
 import { LoggerConfig } from '../../../configuration/loggerConfig'
 import { mockRequest, MockResponse } from '../utils'
-import { BadRequest, Conflict, Internal } from '../../../model/error'
+import { BadRequest, Conflict, Forbidden, Internal } from '../../../model/error'
 import { EitherI } from '../../../model/either'
 import { Phase, PhaseCreation } from '../../../model/phases'
 import {
@@ -13,6 +13,7 @@ import { PhasesService } from '../../../service/phases/phasesService'
 import { phasesServiceMock } from '../../mocks/phases/phasesMocks'
 import { PhasesController } from '../../../controller/phases/phasesController'
 import { DataWithPages } from '../../../model/pagination'
+import { randomUUID } from 'crypto'
 
 describe('Create phase', () => {
   const loggerConfig = new LoggerConfig()
@@ -123,5 +124,63 @@ describe('Get phases', () => {
 
     expect(mockResponse.statusCode).toEqual(500)
     expect(phasesService.getPhases).toBeCalledWith(query)
+  })
+})
+
+describe('Delete phases by id', () => {
+  const loggerConfig = new LoggerConfig()
+  const phaseId = randomUUID()
+  it('returns 204', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      deletePhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(1)
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.deletePhaseById(
+      mockRequest({ id: phaseId }, null, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(204)
+    expect(phasesService.deletePhaseById).toBeCalledWith(phaseId)
+  })
+
+  it('returns 403', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      deletePhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Forbidden())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.deletePhaseById(
+      mockRequest({ id: phaseId }, null, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(403)
+    expect(phasesService.deletePhaseById).toBeCalledWith(phaseId)
+  })
+
+  it('returns 500', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      deletePhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Internal())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.deletePhaseById(
+      mockRequest({ id: phaseId }, null, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(500)
+    expect(phasesService.deletePhaseById).toBeCalledWith(phaseId)
   })
 })

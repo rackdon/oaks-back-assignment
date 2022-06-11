@@ -59,3 +59,20 @@ describe('Get phases', () => {
     )
   })
 })
+
+describe('Delete phase by id', () => {
+  it('returns repository response', async () => {
+    const id = 'id'
+    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+      deletePhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(1)
+      }),
+    })
+    const loggerConfig = new LoggerConfig()
+    const service = new PhasesService(phasesRepository, loggerConfig)
+    const result = await service.deletePhaseById(id)
+
+    expectRight(result).toEqual(1)
+    expect(phasesRepository.deletePhaseById).toBeCalledWith(id)
+  })
+})

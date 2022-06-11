@@ -28,6 +28,8 @@ export class Routes {
       phasesController.getPhases
     )
 
+    this.router.delete('/phases/:id', phasesController.deletePhaseById)
+
     // TASKS
 
     this.router.post(

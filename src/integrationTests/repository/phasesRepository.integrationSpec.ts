@@ -4,7 +4,7 @@ import { PostgresqlClient } from '../../client/postgresql/postgresqlClient'
 import { LoggerConfig } from '../../configuration/loggerConfig'
 import { DatabaseCleanerPsql } from '../utils/databaseCleanerPsql'
 import { Factory } from '../utils/factory'
-import { ApiError, Conflict, Internal, NotFound } from '../../model/error'
+import { ApiError, Conflict, Forbidden } from '../../model/error'
 import { Either } from '../../model/either'
 import { getDatabaseTestConfig } from '../utils/databaseTestConfig'
 import { PhasesRepository } from '../../repository/phasesRepository'
@@ -12,6 +12,9 @@ import { Phase } from '../../model/phases'
 import { expectLeft, expectRight } from '../../test/utils/expects'
 import { generatePhase } from '../../test/utils/generators/phasesGenerator'
 import { generatePagination } from '../../test/utils/generators/paginationGenerator'
+import { Task } from '../../model/tasks'
+import { generateTask } from '../../test/utils/generators/tasksGenerator'
+import { randomUUID } from 'crypto'
 
 describe('phasesRepository', () => {
   const dbConfig = getDatabaseTestConfig()
@@ -131,5 +134,29 @@ describe('phasesRepository', () => {
       generatePagination()
     )
     expectRight(result).toEqual({ data: [phase2], pages: 1 })
+  })
+
+  it('Delete phase by id returns 1 when phase is deleted', async () => {
+    const phase: Phase = await factory.insertPhase()
+    const result = await phasesRepository.deletePhaseById(phase.id)
+
+    expectRight(result).toEqual(1)
+  })
+
+  it('Delete phase by id returns 0 when phase does not exists', async () => {
+    const result = await phasesRepository.deletePhaseById(randomUUID())
+
+    expectRight(result).toEqual(0)
+  })
+
+  it('Delete phase by id returns error when task are owned by this phase', async () => {
+    const phase1: Phase = await factory.insertPhase()
+    const task1: Task = await factory.insertTask(
+      phase1.id,
+      generateTask(undefined, phase1.id, 'a', true)
+    )
+    const result = await phasesRepository.deletePhaseById(phase1.id)
+
+    expectLeft(result, (x) => x.constructor).toEqual(Forbidden)
   })
 })

@@ -67,4 +67,13 @@ export class PhasesRepository {
       return manageDbErrors(e, this.logger)
     })
   }
+
+  async deletePhaseById(id: string): Promise<Either<ApiError, number>> {
+    const result = await EitherI.catchA(async () => {
+      return await this.pgClient.models.Phase.destroy({ where: { id } })
+    })
+    return result.mapLeft((e) => {
+      return manageDbErrors(e, this.logger)
+    })
+  }
 }

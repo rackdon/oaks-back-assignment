@@ -33,4 +33,8 @@ export class PhasesService {
     const paginationFilters = toPagination(filters)
     return this.phasesRepository.getPhases(phasesFilters, paginationFilters)
   }
+
+  async deletePhaseById(id: string): Promise<Either<ApiError, number>> {
+    return this.phasesRepository.deletePhaseById(id)
+  }
 }
