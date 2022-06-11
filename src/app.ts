@@ -5,7 +5,10 @@ import { createTerminus } from '@godaddy/terminus'
 import * as Sentry from '@sentry/node'
 import * as http from 'http'
 import compression from 'compression'
-import { sentryConfig, serverConfig } from './dependencyInjection/configInjections'
+import {
+  sentryConfig,
+  serverConfig,
+} from './dependencyInjection/configInjections'
 import { serverHealth } from './dependencyInjection/serverHealthInjections'
 
 const app: express.Application = express()
@@ -16,7 +19,6 @@ app.use(Sentry.Handlers.requestHandler())
 app.use(morgan('common'))
 app.use(helmet({ contentSecurityPolicy: false }))
 app.use(compression())
-
 
 createTerminus(server, {
   signal: 'SIGINT',
