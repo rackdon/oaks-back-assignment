@@ -19,7 +19,7 @@ export function generatePhase(
   return {
     id: id || randomUUID({}),
     name: name || faker.random.alpha(STRING_LIMIT),
-    done: done || Math.random() < 0.5,
+    done: done !== undefined ? done : Math.random() < 0.5,
     createdOn: createdOn || new Date(),
     updatedOn: updatedOn || new Date(),
   }

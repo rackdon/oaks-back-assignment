@@ -2,7 +2,7 @@
 
 import { LoggerConfig } from '../../../configuration/loggerConfig'
 import { mockRequest, MockResponse } from '../utils'
-import { Conflict, Internal } from '../../../model/error'
+import { BadRequest, Conflict, Internal } from '../../../model/error'
 import { EitherI } from '../../../model/either'
 import { Phase, PhaseCreation } from '../../../model/phases'
 import {
@@ -12,6 +12,7 @@ import {
 import { PhasesService } from '../../../service/phases/phasesService'
 import { phasesServiceMock } from '../../mocks/phases/phasesMocks'
 import { PhasesController } from '../../../controller/phases/phasesController'
+import { DataWithPages } from '../../../model/pagination'
 
 describe('Create phase', () => {
   const loggerConfig = new LoggerConfig()
@@ -70,5 +71,57 @@ describe('Create phase', () => {
 
     expect(mockResponse.statusCode).toEqual(500)
     expect(phasesService.createPhase).toBeCalledWith(phaseCreation)
+  })
+})
+
+describe('Get phases', () => {
+  const loggerConfig = new LoggerConfig()
+  const phaseData: Phase = generatePhase()
+  const phases: DataWithPages<Phase> = { data: [phaseData], pages: 1 }
+  const query = { pageSize: 5 }
+  it('returns 200 with the phases', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      getPhases: jest.fn().mockImplementation(() => {
+        return EitherI.Right(phases)
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.getPhases(mockRequest(null, null, query), mockResponse)
+
+    expect(mockResponse.statusCode).toEqual(200)
+    expect(mockResponse.body).toEqual(phases)
+    expect(phasesService.getPhases).toBeCalledWith(query)
+  })
+
+  it('returns 400 with errors', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      getPhases: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new BadRequest(['error']))
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.getPhases(mockRequest(null, null, query), mockResponse)
+
+    expect(mockResponse.statusCode).toEqual(400)
+    expect(mockResponse.body).toEqual({ errors: ['error'] })
+    expect(phasesService.getPhases).toBeCalledWith(query)
+  })
+  it('returns 500', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      getPhases: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Internal())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.getPhases(mockRequest(null, null, query), mockResponse)
+
+    expect(mockResponse.statusCode).toEqual(500)
+    expect(phasesService.getPhases).toBeCalledWith(query)
   })
 })

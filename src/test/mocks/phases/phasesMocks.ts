@@ -8,6 +8,7 @@ export function phasesServiceMock(
     phasesRepository: args.phasesRepository,
     logger: args.logger,
     createPhase: args.createPhase,
+    getPhases: args.getPhases,
   }
 }
 
@@ -18,5 +19,6 @@ export function phasesRepositoryMock(
     pgClient: args.pgClient,
     logger: args.logger,
     insertPhase: args.insertPhase,
+    getPhases: args.getPhases,
   }
 }
