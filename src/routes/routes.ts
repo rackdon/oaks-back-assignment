@@ -44,6 +44,8 @@ export class Routes {
       tasksController.getTasks
     )
 
+    this.router.get('/tasks/:id', tasksController.getTaskById)
+
     this.router.delete('/tasks/:id', tasksController.deleteTaskById)
   }
 }

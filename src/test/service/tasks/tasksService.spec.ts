@@ -2,7 +2,7 @@
 
 import { LoggerConfig } from '../../../configuration/loggerConfig'
 import { EitherI } from '../../../model/either'
-import { expectRight } from '../../utils/expects'
+import { expectLeft, expectRight } from '../../utils/expects'
 import { Task, TaskCreation } from '../../../model/tasks'
 import {
   generateTask,
@@ -17,6 +17,7 @@ import { DataWithPages, Pagination } from '../../../model/pagination'
 import { PhasesRepository } from '../../../repository/phasesRepository'
 import { phasesRepositoryMock } from '../../mocks/phases/phasesMocks'
 import { PhasesService } from '../../../service/phases/phasesService'
+import { NotFound } from '../../../model/error'
 
 describe('Create task', () => {
   it('returns repository response', async () => {
@@ -62,6 +63,37 @@ describe('Get tasks', () => {
       tasksFilters,
       paginationFilters
     )
+  })
+})
+
+describe('Get task by id', () => {
+  it('returns task if exists', async () => {
+    const task = generateTask()
+    const tasksRepository: TasksRepository = tasksRepositoryMock({
+      getTaskById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(task)
+      }),
+    })
+    const loggerConfig = new LoggerConfig()
+    const service = new TasksService(tasksRepository, loggerConfig)
+    const result = await service.getTaskById(task.id)
+
+    expectRight(result).toEqual(task)
+    expect(tasksRepository.getTaskById).toBeCalledWith(task.id)
+  })
+  it('returns not found if task does not exist', async () => {
+    const id = 'id'
+    const tasksRepository: TasksRepository = tasksRepositoryMock({
+      getTaskById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(null)
+      }),
+    })
+    const loggerConfig = new LoggerConfig()
+    const service = new TasksService(tasksRepository, loggerConfig)
+    const result = await service.getTaskById(id)
+
+    expectLeft(result, (x) => x.constructor).toEqual(NotFound)
+    expect(tasksRepository.getTaskById).toBeCalledWith(id)
   })
 })
 

@@ -4,19 +4,11 @@ import { PostgresqlClient } from '../../client/postgresql/postgresqlClient'
 import { LoggerConfig } from '../../configuration/loggerConfig'
 import { DatabaseCleanerPsql } from '../utils/databaseCleanerPsql'
 import { Factory } from '../utils/factory'
-import {
-  ApiError,
-  BadRequest,
-  Conflict,
-  Internal,
-  NotFound,
-} from '../../model/error'
+import { ApiError, BadRequest, Internal, NotFound } from '../../model/error'
 import { Either } from '../../model/either'
 import { getDatabaseTestConfig } from '../utils/databaseTestConfig'
-import { PhasesRepository } from '../../repository/phasesRepository'
 import { Phase } from '../../model/phases'
 import { expectLeft, expectRight } from '../../test/utils/expects'
-import { generatePhase } from '../../test/utils/generators/phasesGenerator'
 import { generatePagination } from '../../test/utils/generators/paginationGenerator'
 import { TasksRepository } from '../../repository/tasksRepository'
 import { randomUUID } from 'crypto'
@@ -139,6 +131,21 @@ describe('tasksRepository', () => {
       generatePagination()
     )
     expectRight(result).toEqual({ data: [task2], pages: 1 })
+  })
+
+  it('get task by id returns the task', async () => {
+    const phase: Phase = await factory.insertPhase()
+    const task: Task = await factory.insertTask(
+      phase.id,
+      generateTask(undefined, phase.id)
+    )
+    const result = await tasksRepository.getTaskById(task.id)
+    expectRight(result).toEqual(task)
+  })
+
+  it('get task by id returns internal if db error', async () => {
+    const result = await tasksRepository.getTaskById('asdf')
+    expectLeft(result, (x) => x.constructor).toEqual(Internal)
   })
 
   it('Delete task by id returns 1 when task is deleted', async () => {

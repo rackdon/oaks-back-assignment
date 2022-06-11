@@ -1,7 +1,7 @@
 import winston from 'winston'
 import { LoggerConfig } from '../../configuration/loggerConfig'
-import { Either } from '../../model/either'
-import { ApiError } from '../../model/error'
+import { Either, EitherI } from '../../model/either'
+import { ApiError, NotFound } from '../../model/error'
 import { TasksRepository } from '../../repository/tasksRepository'
 import {
   PaginatedTasksFilters,
@@ -32,6 +32,15 @@ export class TasksService {
     const tasksFilters = toTasksFilters(filters)
     const paginationFilters = toPagination(filters)
     return this.tasksRepository.getTasks(tasksFilters, paginationFilters)
+  }
+
+  async getTaskById(id: string): Promise<Either<ApiError, Task>> {
+    const result = await this.tasksRepository.getTaskById(id)
+    return result
+      .map((task: Task | null) => {
+        return task ? task : EitherI.Left(new NotFound())
+      })
+      .bind()
   }
 
   async deleteTaskById(id: string): Promise<Either<ApiError, number>> {

@@ -2,7 +2,7 @@
 
 import winston from 'winston'
 import { LoggerConfig } from '../../configuration/loggerConfig'
-import { ApiError, BadRequest, Internal } from '../../model/error'
+import { ApiError, BadRequest, Internal, NotFound } from '../../model/error'
 import { TasksService } from '../../service/tasks/tasksService'
 import { Task } from '../../model/tasks'
 import { DataWithPages } from '../../model/pagination'
@@ -59,6 +59,29 @@ export class TasksController {
         }
       },
       (tasks: DataWithPages<Task>) => res.status(200).json(tasks)
+    )
+  }
+
+  getTaskById = async (req, res): Promise<void> => {
+    const result = await this.tasksService.getTaskById(req.params.id)
+    result.fold(
+      (error: ApiError) => {
+        switch (error?.constructor) {
+          case NotFound: {
+            res.status(404).send()
+            break
+          }
+          case Internal: {
+            res.status(500).send()
+            break
+          }
+          default: {
+            this.logger.warn(`Unexpected error: ${error}`)
+            res.status(500).send()
+          }
+        }
+      },
+      (task: Task) => res.status(200).json(task)
     )
   }
 

@@ -75,6 +75,16 @@ export class TasksRepository {
     })
   }
 
+  async getTaskById(id: string): Promise<Either<ApiError, Task | null>> {
+    const result = await EitherI.catchA(async () => {
+      const result = await this.pgClient.models.Task.findByPk(id)
+      return result ? this.extractTask(result) : null
+    })
+    return result.mapLeft((e) => {
+      return manageDbErrors(e, this.logger)
+    })
+  }
+
   async deleteTaskById(id: string): Promise<Either<ApiError, number>> {
     const result = await EitherI.catchA(async () => {
       return await this.pgClient.models.Task.destroy({ where: { id } })

@@ -2,7 +2,7 @@
 
 import { LoggerConfig } from '../../../configuration/loggerConfig'
 import { mockRequest, MockResponse } from '../utils'
-import { BadRequest, Conflict, Internal } from '../../../model/error'
+import { BadRequest, Conflict, Internal, NotFound } from '../../../model/error'
 import { EitherI } from '../../../model/either'
 import { Task, TaskCreation } from '../../../model/tasks'
 import {
@@ -71,6 +71,66 @@ describe('Create task', () => {
 
     expect(mockResponse.statusCode).toEqual(500)
     expect(tasksService.createTask).toBeCalledWith(taskCreation)
+  })
+})
+
+describe('Get task by id', () => {
+  const loggerConfig = new LoggerConfig()
+  const taskId = randomUUID()
+  it('returns 200 with task', async () => {
+    const task = generateTask()
+    const tasksService: TasksService = tasksServiceMock({
+      getTaskById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(task)
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new TasksController(tasksService, loggerConfig)
+
+    await controller.getTaskById(
+      mockRequest({ id: taskId }, null, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(200)
+    expect(mockResponse.body).toEqual(task)
+    expect(tasksService.getTaskById).toBeCalledWith(taskId)
+  })
+
+  it('returns 404', async () => {
+    const tasksService: TasksService = tasksServiceMock({
+      getTaskById: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new NotFound())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new TasksController(tasksService, loggerConfig)
+
+    await controller.getTaskById(
+      mockRequest({ id: taskId }, null, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(404)
+    expect(tasksService.getTaskById).toBeCalledWith(taskId)
+  })
+
+  it('returns 500', async () => {
+    const tasksService: TasksService = tasksServiceMock({
+      getTaskById: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Internal())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new TasksController(tasksService, loggerConfig)
+
+    await controller.getTaskById(
+      mockRequest({ id: taskId }, null, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(500)
+    expect(tasksService.getTaskById).toBeCalledWith(taskId)
   })
 })
 
