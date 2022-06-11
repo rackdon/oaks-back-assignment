@@ -5,6 +5,7 @@ import { LoggerConfig } from '../../configuration/loggerConfig'
 import { ApiError, BadRequest, Internal } from '../../model/error'
 import { TasksService } from '../../service/tasks/tasksService'
 import { Task } from '../../model/tasks'
+import { DataWithPages } from '../../model/pagination'
 
 export class TasksController {
   readonly tasksService: TasksService
@@ -35,6 +36,29 @@ export class TasksController {
         }
       },
       (task: Task) => res.status(201).json(task)
+    )
+  }
+
+  getTasks = async (req, res): Promise<void> => {
+    const result = await this.tasksService.getTasks(req.query)
+    result.fold(
+      (error: ApiError) => {
+        switch (error?.constructor) {
+          case BadRequest: {
+            res.status(400).json(error)
+            break
+          }
+          case Internal: {
+            res.status(500).send()
+            break
+          }
+          default: {
+            this.logger.warn(`Unexpected error: ${error}`)
+            res.status(500).send()
+          }
+        }
+      },
+      (tasks: DataWithPages<Task>) => res.status(200).json(tasks)
     )
   }
 }

@@ -54,8 +54,8 @@ export class PhasesRepository {
     pagination: Pagination
   ): Promise<Either<ApiError, DataWithPages<Phase>>> {
     const paginationQuery = getPaginationQuery(pagination)
-    const userFilters = this.getFilters(filters)
-    const query = { ...paginationQuery, where: userFilters }
+    const phaseFilters = this.getFilters(filters)
+    const query = { ...paginationQuery, where: phaseFilters }
     const result = await EitherI.catchA(async () => {
       const phases = await this.pgClient.models.Phase.findAndCountAll(query)
       return {

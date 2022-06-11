@@ -52,11 +52,11 @@ export class Factory {
     return this.parseKeys<Phase>(insertedPhase)
   }
 
-  async insertTask(phaseId: string, task?: Task): Promise<Phase> {
+  async insertTask(phaseId: string, task?: Task): Promise<Task> {
     const insertedTask = await this.insert(
       'tasks',
       task || generateTask(undefined, phaseId)
     )
-    return this.parseKeys<Phase>(insertedTask)
+    return this.parseKeys<Task>(insertedTask)
   }
 }

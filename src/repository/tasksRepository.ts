@@ -7,7 +7,9 @@ import { Sequelize } from 'sequelize'
 import { manageDbErrors } from './errors'
 import { ApiError } from '../model/error'
 import { Either, EitherI } from '../model/either'
-import { Task, TaskCreation } from '../model/tasks'
+import { Task, TaskCreation, TasksFilters } from '../model/tasks'
+import { DataWithPages, Pagination } from '../model/pagination'
+import { getPages, getPaginationQuery } from './pagination'
 
 export class TasksRepository {
   readonly logger: winston.Logger
@@ -28,6 +30,39 @@ export class TasksRepository {
         phaseId,
       })
       return result['dataValues']
+    })
+    return result.mapLeft((e) => {
+      return manageDbErrors(e, this.logger)
+    })
+  }
+
+  private getFilters(tasksFilters: TasksFilters): Record<string, any> {
+    const filters = {}
+    if (tasksFilters.name) {
+      filters['name'] = tasksFilters.name
+    }
+    if (tasksFilters.done !== undefined) {
+      filters['done'] = tasksFilters.done
+    }
+    if (tasksFilters.phaseId) {
+      filters['phaseId'] = tasksFilters.phaseId
+    }
+    return filters
+  }
+
+  async getTasks(
+    filters: TasksFilters,
+    pagination: Pagination
+  ): Promise<Either<ApiError, DataWithPages<Task>>> {
+    const paginationQuery = getPaginationQuery(pagination)
+    const tasksFilters = this.getFilters(filters)
+    const query = { ...paginationQuery, where: tasksFilters }
+    const result = await EitherI.catchA(async () => {
+      const phases = await this.pgClient.models.Task.findAndCountAll(query)
+      return {
+        data: phases.rows.map((x) => x.get()),
+        pages: getPages(phases.count, pagination.pageSize),
+      }
     })
     return result.mapLeft((e) => {
       return manageDbErrors(e, this.logger)

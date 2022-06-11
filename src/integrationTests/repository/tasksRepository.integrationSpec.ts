@@ -20,6 +20,8 @@ import { generatePhase } from '../../test/utils/generators/phasesGenerator'
 import { generatePagination } from '../../test/utils/generators/paginationGenerator'
 import { TasksRepository } from '../../repository/tasksRepository'
 import { randomUUID } from 'crypto'
+import { Task } from '../../model/tasks'
+import { generateTask } from '../../test/utils/generators/tasksGenerator'
 
 describe('tasksRepository', () => {
   const dbConfig = getDatabaseTestConfig()
@@ -68,5 +70,74 @@ describe('tasksRepository', () => {
         'insert or update on table "tasks" violates foreign key constraint "tasks_phase_id_fkey"',
       ])
     )
+  })
+
+  it('getTasks returns all tasks', async () => {
+    const phase1: Phase = await factory.insertPhase()
+    const phase2: Phase = await factory.insertPhase()
+    const task1: Task = await factory.insertTask(
+      phase1.id,
+      generateTask(undefined, phase1.id, 'a', true)
+    )
+    const task2: Task = await factory.insertTask(
+      phase2.id,
+      generateTask(undefined, phase2.id, 'b', false)
+    )
+    const result = await tasksRepository.getTasks({}, generatePagination())
+    expectRight(result).toEqual({ data: [task1, task2], pages: 1 })
+  })
+
+  it('getTasks returns all tasks that match name query', async () => {
+    const phase1: Phase = await factory.insertPhase()
+    const phase2: Phase = await factory.insertPhase()
+    const task1: Task = await factory.insertTask(
+      phase1.id,
+      generateTask(undefined, phase1.id, 'a', true)
+    )
+    const task2: Task = await factory.insertTask(
+      phase2.id,
+      generateTask(undefined, phase2.id, 'b', false)
+    )
+    const result = await tasksRepository.getTasks(
+      { name: 'a' },
+      generatePagination()
+    )
+    expectRight(result).toEqual({ data: [task1], pages: 1 })
+  })
+
+  it('getTasks returns all tasks that match done query', async () => {
+    const phase1: Phase = await factory.insertPhase()
+    const phase2: Phase = await factory.insertPhase()
+    const task1: Task = await factory.insertTask(
+      phase1.id,
+      generateTask(undefined, phase1.id, 'a', true)
+    )
+    const task2: Task = await factory.insertTask(
+      phase2.id,
+      generateTask(undefined, phase2.id, 'b', false)
+    )
+    const result = await tasksRepository.getTasks(
+      { done: false },
+      generatePagination()
+    )
+    expectRight(result).toEqual({ data: [task2], pages: 1 })
+  })
+
+  it('getTasks returns all tasks that match phase id query', async () => {
+    const phase1: Phase = await factory.insertPhase()
+    const phase2: Phase = await factory.insertPhase()
+    const task1: Task = await factory.insertTask(
+      phase1.id,
+      generateTask(undefined, phase1.id, 'a', true)
+    )
+    const task2: Task = await factory.insertTask(
+      phase2.id,
+      generateTask(undefined, phase2.id, 'b', false)
+    )
+    const result = await tasksRepository.getTasks(
+      { phaseId: phase2.id },
+      generatePagination()
+    )
+    expectRight(result).toEqual({ data: [task2], pages: 1 })
   })
 })

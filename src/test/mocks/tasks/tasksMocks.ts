@@ -6,6 +6,7 @@ export function tasksServiceMock(args: Record<string, unknown>): TasksService {
     tasksRepository: args.tasksRepository,
     logger: args.logger,
     createTask: args.createTask,
+    getTasks: args.getTasks,
   }
 }
 
@@ -16,5 +17,6 @@ export function tasksRepositoryMock(
     pgClient: args.pgClient,
     logger: args.logger,
     insertTask: args.insertTask,
+    getTasks: args.getTasks,
   }
 }
