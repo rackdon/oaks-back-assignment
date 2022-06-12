@@ -7,7 +7,9 @@ import {
   PaginatedPhasesFilters,
   Phase,
   PhaseCreation,
+  PhaseEdition,
   PhaseProjection,
+  PhaseRaw,
   toPhasesFilters,
 } from '../../model/phases'
 import { DataWithPages, toPagination } from '../../model/pagination'
@@ -25,8 +27,15 @@ export class PhasesService {
 
   async createPhase(
     phaseCreation: PhaseCreation
-  ): Promise<Either<ApiError, Phase>> {
+  ): Promise<Either<ApiError, PhaseRaw>> {
     return this.phasesRepository.insertPhase(phaseCreation)
+  }
+
+  async editPhase(
+    id: string,
+    phaseEdition: PhaseEdition
+  ): Promise<Either<ApiError, PhaseRaw>> {
+    return this.phasesRepository.updatePhase(id, phaseEdition)
   }
 
   async getPhases(

@@ -7,6 +7,7 @@ import { TasksController } from '../controller/tasks/tasksController'
 import { TasksCreationValidator } from './validators/tasks/tasksCreationValidator'
 import { TasksFilterValidator } from './validators/tasks/tasksFiltersValidator'
 import { PhaseFilterValidator } from './validators/phases/phaseFiltersValidator'
+import { PhasesEditionValidator } from './validators/phases/phasesEditionValidator'
 
 export class Routes {
   readonly router: Router = Router()
@@ -21,6 +22,12 @@ export class Routes {
       '/phases',
       validateBody(PhasesCreationValidator.ValidationInstance),
       phasesController.createPhase
+    )
+
+    this.router.patch(
+      '/phases/:id',
+      validateBody(PhasesEditionValidator.ValidationInstance),
+      phasesController.editPhase
     )
 
     this.router.get(

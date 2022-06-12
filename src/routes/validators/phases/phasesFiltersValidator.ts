@@ -28,7 +28,9 @@ export class PhasesFilterValidator extends PaginationValidator {
   createdAfter!: Date
 
   @IsOptional()
-  @IsEnum(['PhaseRaw', 'PhaseWithTasks'])
+  @IsEnum(['PhaseRaw', 'PhaseWithTasks'], {
+    message: 'projection only accept PhaseRaw or PhaseWithTasks',
+  })
   projection!: PhaseProjection
 
   private constructor(obj: Record<string, any>) {

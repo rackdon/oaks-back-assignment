@@ -1,11 +1,18 @@
 import { faker } from '@faker-js/faker'
 import { randomUUID } from 'crypto'
-import { Phase, PhaseCreation } from '../../../model/phases'
+import { Phase, PhaseCreation, PhaseEdition } from '../../../model/phases'
 import { STRING_LIMIT } from './constants'
 
 export function generatePhaseCreation(name?: string): PhaseCreation {
   return {
     name: name || faker.random.alpha(STRING_LIMIT),
+  }
+}
+
+export function generatePhaseEdition(name?: string): PhaseEdition {
+  return {
+    name: name || faker.random.alpha(STRING_LIMIT),
+    done: true,
   }
 }
 

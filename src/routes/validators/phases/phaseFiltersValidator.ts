@@ -5,7 +5,9 @@ import { PaginatedPhasesFilters, PhaseProjection } from '../../../model/phases'
 
 export class PhaseFilterValidator {
   @IsOptional()
-  @IsEnum(['PhaseRaw', 'PhaseWithTasks'])
+  @IsEnum(['PhaseRaw', 'PhaseWithTasks'], {
+    message: 'projection only accept PhaseRaw or PhaseWithTasks',
+  })
   projection!: PhaseProjection
 
   private constructor(obj: Record<string, any>) {

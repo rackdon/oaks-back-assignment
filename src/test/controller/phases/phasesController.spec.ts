@@ -10,10 +10,11 @@ import {
   NotFound,
 } from '../../../model/error'
 import { EitherI } from '../../../model/either'
-import { Phase, PhaseCreation } from '../../../model/phases'
+import { Phase, PhaseCreation, PhaseEdition } from '../../../model/phases'
 import {
   generatePhase,
   generatePhaseCreation,
+  generatePhaseEdition,
 } from '../../utils/generators/phasesGenerator'
 import { PhasesService } from '../../../service/phases/phasesService'
 import { phasesServiceMock } from '../../mocks/phases/phasesMocks'
@@ -78,6 +79,84 @@ describe('Create phase', () => {
 
     expect(mockResponse.statusCode).toEqual(500)
     expect(phasesService.createPhase).toBeCalledWith(phaseCreation)
+  })
+})
+
+describe('Edit phase', () => {
+  const loggerConfig = new LoggerConfig()
+  const phase: Phase = generatePhase()
+  const phaseEdition: PhaseEdition = generatePhaseEdition()
+  it('returns 200 with the updated phase', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      editPhase: jest.fn().mockImplementation(() => {
+        return EitherI.Right(phase)
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.editPhase(
+      mockRequest({ id: phase.id }, phaseEdition, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(200)
+    expect(mockResponse.body).toEqual(phase)
+    expect(phasesService.editPhase).toBeCalledWith(phase.id, phaseEdition)
+  })
+
+  it('returns 400 with errors', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      editPhase: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new BadRequest(['error']))
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.editPhase(
+      mockRequest({ id: phase.id }, phaseEdition, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(400)
+    expect(mockResponse.body).toEqual({ errors: ['error'] })
+    expect(phasesService.editPhase).toBeCalledWith(phase.id, phaseEdition)
+  })
+
+  it('returns 404', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      editPhase: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new NotFound())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.editPhase(
+      mockRequest({ id: phase.id }, phaseEdition, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(404)
+    expect(phasesService.editPhase).toBeCalledWith(phase.id, phaseEdition)
+  })
+  it('returns 500', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      editPhase: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Internal())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.editPhase(
+      mockRequest({ id: phase.id }, phaseEdition, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(500)
+    expect(phasesService.editPhase).toBeCalledWith(phase.id, phaseEdition)
   })
 })
 

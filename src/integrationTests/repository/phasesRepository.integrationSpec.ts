@@ -57,6 +57,31 @@ describe('phasesRepository', () => {
     expectLeft(result).toEqual(new Conflict(['name must be unique']))
   })
 
+  it('updatePhase returns phase with updated data', async () => {
+    const name1 = 'name'
+    const name2 = 'name2'
+    const phase = await factory.insertPhase(
+      generatePhase(undefined, name1, false)
+    )
+    const result = await phasesRepository.updatePhase(phase.id, {
+      name: name2,
+      done: true,
+    })
+    expectRight(result, (x) => {
+      return { name: x.name, done: x.done }
+    }).toEqual({ name: name2, done: true })
+  })
+
+  it('updatePhase returns null if phase does not exists', async () => {
+    const name2 = 'name2'
+    const result = await phasesRepository.updatePhase(randomUUID(), {
+      name: name2,
+      done: true,
+    })
+    expectLeft(result).toEqual(null)
+    expectRight(result).toEqual(null)
+  })
+
   it('getPhases returns all phases with PhaseRaw projection', async () => {
     const firstDate = new Date()
     const secondDate = new Date(firstDate.getTime() + 3600000)

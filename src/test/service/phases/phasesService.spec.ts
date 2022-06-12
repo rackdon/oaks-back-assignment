@@ -6,6 +6,7 @@ import { expectLeft, expectRight } from '../../utils/expects'
 import {
   Phase,
   PhaseCreation,
+  PhaseEdition,
   PhaseProjection,
   PhasesFilters,
 } from '../../../model/phases'
@@ -34,6 +35,24 @@ describe('Create phase', () => {
 
     expectRight(result).toEqual(phase)
     expect(phasesRepository.insertPhase).toBeCalledWith(phaseCreation)
+  })
+})
+
+describe('Edit phase', () => {
+  it('returns repository response', async () => {
+    const phaseEdition: PhaseEdition = { name: 'asdf', done: true }
+    const phase = generatePhase()
+    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+      updatePhase: jest.fn().mockImplementation(() => {
+        return EitherI.Right(phase)
+      }),
+    })
+    const loggerConfig = new LoggerConfig()
+    const service = new PhasesService(phasesRepository, loggerConfig)
+    const result = await service.editPhase(phase.id, phaseEdition)
+
+    expectRight(result).toEqual(phase)
+    expect(phasesRepository.updatePhase).toBeCalledWith(phase.id, phaseEdition)
   })
 })
 

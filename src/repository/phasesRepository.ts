@@ -10,7 +10,9 @@ import { Either, EitherI } from '../model/either'
 import {
   Phase,
   PhaseCreation,
+  PhaseEdition,
   PhaseProjection,
+  PhaseRaw,
   PhasesFilters,
 } from '../model/phases'
 import { DataWithPages, Pagination } from '../model/pagination'
@@ -25,12 +27,35 @@ export class PhasesRepository {
     this.logger = loggerConfig.create(PhasesRepository.name)
   }
 
-  async insertPhase({ name }: PhaseCreation): Promise<Either<ApiError, Phase>> {
+  async insertPhase({
+    name,
+  }: PhaseCreation): Promise<Either<ApiError, PhaseRaw>> {
     const result = await EitherI.catchA(async () => {
       const result = await this.pgClient.models.Phase.create({
         name,
       })
       return result['dataValues']
+    })
+    return result.mapLeft((e) => {
+      return manageDbErrors(e, this.logger)
+    })
+  }
+
+  async updatePhase(
+    id: string,
+    data: PhaseEdition
+  ): Promise<Either<ApiError, PhaseRaw | null>> {
+    const result = await EitherI.catchA(async () => {
+      /* eslint-disable  @typescript-eslint/no-unused-vars */
+      const [elems, resultArr] = await this.pgClient.models.Phase.update(
+        { ...data, updatedOn: new Date() },
+        {
+          where: { id },
+          returning: true,
+        }
+      )
+      const updatedModel = resultArr[0]
+      return updatedModel ? updatedModel['dataValues'] : null
     })
     return result.mapLeft((e) => {
       return manageDbErrors(e, this.logger)

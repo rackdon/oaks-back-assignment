@@ -46,6 +46,33 @@ export class PhasesController {
     )
   }
 
+  editPhase = async (req, res): Promise<void> => {
+    const result = await this.phasesService.editPhase(req.params.id, req.body)
+    result.fold(
+      (error: ApiError) => {
+        switch (error.constructor) {
+          case BadRequest: {
+            res.status(400).json(error)
+            break
+          }
+          case NotFound: {
+            res.status(404).send()
+            break
+          }
+          case Internal: {
+            res.status(500).send()
+            break
+          }
+          default: {
+            this.logger.warn(`Unexpected error: ${error}`)
+            res.status(500).send()
+          }
+        }
+      },
+      (phase: Phase) => res.status(200).json(phase)
+    )
+  }
+
   getPhases = async (req, res): Promise<void> => {
     const result = await this.phasesService.getPhases(req.query)
     result.fold(
