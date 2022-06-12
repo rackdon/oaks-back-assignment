@@ -10,6 +10,7 @@ import {
 import { PhaseEdition } from '../../../model/phases'
 
 export class PhasesEditionValidator {
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   name!: string

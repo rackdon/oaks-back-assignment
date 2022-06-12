@@ -59,6 +59,10 @@ export class PhasesController {
             res.status(404).send()
             break
           }
+          case Conflict: {
+            res.status(409).json(error)
+            break
+          }
           case Internal: {
             res.status(500).send()
             break

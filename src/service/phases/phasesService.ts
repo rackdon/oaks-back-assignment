@@ -1,7 +1,7 @@
 import winston from 'winston'
 import { LoggerConfig } from '../../configuration/loggerConfig'
 import { Either, EitherI } from '../../model/either'
-import { ApiError, NotFound } from '../../model/error'
+import { ApiError, BadRequest, NotFound } from '../../model/error'
 import { PhasesRepository } from '../../repository/phasesRepository'
 import {
   PaginatedPhasesFilters,
@@ -13,7 +13,6 @@ import {
   toPhasesFilters,
 } from '../../model/phases'
 import { DataWithPages, toPagination } from '../../model/pagination'
-import { Task } from '../../model/tasks'
 
 export class PhasesService {
   readonly logger: winston.Logger
@@ -35,7 +34,29 @@ export class PhasesService {
     id: string,
     phaseEdition: PhaseEdition
   ): Promise<Either<ApiError, PhaseRaw>> {
-    return this.phasesRepository.updatePhase(id, phaseEdition)
+    if ('done' in phaseEdition) {
+      const phaseResult = await this.getPhaseById(id, {
+        projection: 'PhaseWithTasks',
+      })
+      const editionResult = await phaseResult
+        .map((phase) => {
+          return phase.tasks.filter((task) => !task.done).length === 0
+            ? phase
+            : EitherI.Left(new BadRequest(['all tasks must be done']))
+        })
+        .bind()
+        .mapA(() => {
+          return this.phasesRepository.updatePhase(id, phaseEdition)
+        })
+      return editionResult.bind()
+    } else {
+      const result = await this.phasesRepository.updatePhase(id, phaseEdition)
+      return result
+        .map((phase: Phase | null) => {
+          return phase ? phase : EitherI.Left(new NotFound())
+        })
+        .bind()
+    }
   }
 
   async getPhases(
@@ -54,7 +75,7 @@ export class PhasesService {
   async getPhaseById(
     id: string,
     { projection }: { projection?: PhaseProjection }
-  ): Promise<Either<ApiError, Task>> {
+  ): Promise<Either<ApiError, Phase>> {
     const result = await this.phasesRepository.getPhaseById(
       id,
       projection || this.defaultPhase

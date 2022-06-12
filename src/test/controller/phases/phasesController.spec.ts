@@ -141,6 +141,26 @@ describe('Edit phase', () => {
     expect(mockResponse.statusCode).toEqual(404)
     expect(phasesService.editPhase).toBeCalledWith(phase.id, phaseEdition)
   })
+
+  it('returns 409 with errors', async () => {
+    const phasesService: PhasesService = phasesServiceMock({
+      editPhase: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Conflict(['error']))
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new PhasesController(phasesService, loggerConfig)
+
+    await controller.editPhase(
+      mockRequest({ id: phase.id }, phaseEdition, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(409)
+    expect(mockResponse.body).toEqual({ errors: ['error'] })
+    expect(phasesService.editPhase).toBeCalledWith(phase.id, phaseEdition)
+  })
+
   it('returns 500', async () => {
     const phasesService: PhasesService = phasesServiceMock({
       editPhase: jest.fn().mockImplementation(() => {
