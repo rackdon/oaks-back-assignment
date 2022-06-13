@@ -11,7 +11,7 @@ import {
 import { TasksRepository } from '../../../repository/tasksRepository'
 import { tasksRepositoryMock } from '../../mocks/tasks/tasksMocks'
 import { TasksService } from '../../../service/tasks/tasksService'
-import { PhasesFilters } from '../../../model/phases'
+import { Phase, PhasesFilters } from '../../../model/phases'
 import { DataWithPages, Pagination } from '../../../model/pagination'
 import { BadRequest, Internal, NotFound } from '../../../model/error'
 import { PhasesRepository } from '../../../repository/phasesRepository'
@@ -19,10 +19,15 @@ import { phasesRepositoryMock } from '../../mocks/phases/phasesMocks'
 import { generatePhase } from '../../utils/generators/phasesGenerator'
 
 describe('Create task', () => {
-  const phasesRepository: PhasesRepository = phasesRepositoryMock({})
-  it('returns repository response', async () => {
+  it('creates the task correctly', async () => {
     const taskCreation: TaskCreation = generateTaskCreation()
+    const phase: Phase = generatePhase()
     const task: Task = generateTask()
+    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+      getPhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(phase)
+      }),
+    })
     const tasksRepository: TasksRepository = tasksRepositoryMock({
       insertTask: jest.fn().mockImplementation(() => {
         return EitherI.Right(task)
@@ -38,6 +43,57 @@ describe('Create task', () => {
 
     expectRight(result).toEqual(task)
     expect(tasksRepository.insertTask).toBeCalledWith(taskCreation)
+    expect(phasesRepository.getPhaseById).toBeCalledWith(
+      taskCreation.phaseId,
+      'PhaseRaw'
+    )
+  })
+
+  it('returns bad request if phase does not exist', async () => {
+    const taskCreation: TaskCreation = generateTaskCreation()
+    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+      getPhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(null)
+      }),
+    })
+    const tasksRepository: TasksRepository = tasksRepositoryMock({})
+    const loggerConfig = new LoggerConfig()
+    const service = new TasksService(
+      tasksRepository,
+      phasesRepository,
+      loggerConfig
+    )
+    const result = await service.createTask(taskCreation)
+
+    expectLeft(result, (x) => x.constructor).toEqual(BadRequest)
+    expect(phasesRepository.getPhaseById).toBeCalledWith(
+      taskCreation.phaseId,
+      'PhaseRaw'
+    )
+  })
+
+  it('returns bad request if phase is already done', async () => {
+    const taskCreation: TaskCreation = generateTaskCreation()
+    const phase = generatePhase(undefined, undefined, true)
+    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+      getPhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Right(null)
+      }),
+    })
+    const tasksRepository: TasksRepository = tasksRepositoryMock({})
+    const loggerConfig = new LoggerConfig()
+    const service = new TasksService(
+      tasksRepository,
+      phasesRepository,
+      loggerConfig
+    )
+    const result = await service.createTask(taskCreation)
+
+    expectLeft(result, (x) => x.constructor).toEqual(BadRequest)
+    expect(phasesRepository.getPhaseById).toBeCalledWith(
+      taskCreation.phaseId,
+      'PhaseRaw'
+    )
   })
 })
 
