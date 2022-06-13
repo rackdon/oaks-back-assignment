@@ -1,13 +1,11 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-import { IsEnum, IsOptional } from 'class-validator'
+import { IsIn, IsOptional } from 'class-validator'
 import { PaginatedPhasesFilters, PhaseProjection } from '../../../model/phases'
 
 export class PhaseFilterValidator {
   @IsOptional()
-  @IsEnum(['PhaseRaw', 'PhaseWithTasks'], {
-    message: 'projection only accept PhaseRaw or PhaseWithTasks',
-  })
+  @IsIn(['PhaseRaw', 'PhaseWithTasks'])
   projection!: PhaseProjection
 
   private constructor(obj: Record<string, any>) {

@@ -3,7 +3,7 @@
 import {
   IsBooleanString,
   IsDateString,
-  IsEnum,
+  IsIn,
   IsNotEmpty,
   IsOptional,
 } from 'class-validator'
@@ -28,9 +28,7 @@ export class PhasesFilterValidator extends PaginationValidator {
   createdAfter!: Date
 
   @IsOptional()
-  @IsEnum(['PhaseRaw', 'PhaseWithTasks'], {
-    message: 'projection only accept PhaseRaw or PhaseWithTasks',
-  })
+  @IsIn(['PhaseRaw', 'PhaseWithTasks'])
   projection!: PhaseProjection
 
   private constructor(obj: Record<string, any>) {

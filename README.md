@@ -24,7 +24,8 @@ For the first time, npm install is needed
 $ npm install
 ```
 
-As running database is needed it can be launched through docker compose
+As running database is needed it can be launched through docker compose and automatically will create the tables
+and the owner role
 ```$xslt
 $ docker-compose up
 ```
@@ -111,17 +112,78 @@ NAME:type(default)
 
 ## Rest endpoints
 
-Phases
+PHASES
 - POST /api/phases
+
+body
+```json
+{"name": string}
+```
 - GET /api/phases
+
+optional query params
+```json
+{
+  "name": string,
+  "done": boolean,
+  "createdBefore": date,
+  "createdAfter": date,
+  "projection": "PhaseRaw" | "PhaseWithTasks",
+  "page": number,
+  "pageSize": number,
+  "sort": string,
+  "sortDir": "ASC" | "DESC"
+}
+```
 - GET /api/phases/:id
-- PUT /api/phases/:id
+
+  optional query params
+```json
+{
+  "projection": "PhaseRaw" | "PhaseWithTasks"
+}
+```
+- PATCH /api/phases/:id
+
+body without mandatory fields
+```json
+{"name": string
+ "done":  true (only true is accepted)}
+```
 - DELETE /api/phases/:id
 
-Tasks
-- POST /api/tasks -> need name and phase_id
+TASKS
+
+- POST /api/tasks
+
+body
+
+```json
+{
+  "name": string,
+  "phaseId": uuid
+}
+```
 - GET /api/tasks
-- PUT /api/tasks/:id
+
+optional query params
+```json
+{
+  "name": string,
+  "done": boolean,
+  "page": number,
+  "pageSize": number,
+  "sort": string,
+  "sortDir": "ASC" | "DESC"
+}
+```
+- PATCH /api/tasks/:id
+
+body without mandatory fields
+```json
+{"name": string
+ "done":  true (only true is accepted)}
+```
 - DELETE /api/tasks/:id
 
 
