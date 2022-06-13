@@ -116,13 +116,13 @@ PHASES
 - POST /api/phases
 
 body
-```json
+```
 {"name": string}
 ```
 - GET /api/phases
 
 optional query params
-```json
+```
 {
   "name": string,
   "done": boolean,
@@ -138,7 +138,7 @@ optional query params
 - GET /api/phases/:id
 
   optional query params
-```json
+```
 {
   "projection": "PhaseRaw" | "PhaseWithTasks"
 }
@@ -146,7 +146,7 @@ optional query params
 - PATCH /api/phases/:id
 
 body without mandatory fields
-```json
+```
 {"name": string
  "done":  true (only true is accepted)}
 ```
@@ -158,7 +158,7 @@ TASKS
 
 body
 
-```json
+```
 {
   "name": string,
   "phaseId": uuid
@@ -167,7 +167,7 @@ body
 - GET /api/tasks
 
 optional query params
-```json
+```
 {
   "name": string,
   "done": boolean,
@@ -180,7 +180,7 @@ optional query params
 - PATCH /api/tasks/:id
 
 body without mandatory fields
-```json
+```
 {"name": string
  "done":  true (only true is accepted)}
 ```
