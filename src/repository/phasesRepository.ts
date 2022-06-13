@@ -31,8 +31,11 @@ export class PhasesRepository {
     name,
   }: PhaseCreation): Promise<Either<ApiError, PhaseRaw>> {
     const result = await EitherI.catchA(async () => {
+      const date = new Date()
       const result = await this.pgClient.models.Phase.create({
         name,
+        createdOn: date,
+        updatedOn: date,
       })
       return result['dataValues']
     })
@@ -71,10 +74,10 @@ export class PhasesRepository {
       filters['done'] = phasesFilters.done
     }
     if (phasesFilters.createdBefore) {
-      filters['createdOn'] = { [Op.lte]: phasesFilters.createdBefore }
+      filters['createdOn'] = { [Op.lt]: phasesFilters.createdBefore }
     }
     if (phasesFilters.createdAfter) {
-      filters['createdOn'] = { [Op.gte]: phasesFilters.createdAfter }
+      filters['createdOn'] = { [Op.gt]: phasesFilters.createdAfter }
     }
     return filters
   }

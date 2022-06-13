@@ -28,7 +28,7 @@ export function toPagination(pagination: PaginationFilters): Pagination {
       ? typeof pagination.sort === 'string'
         ? [pagination.sort as string]
         : (pagination.sort as Array<string>)
-      : [],
+      : ['createdOn'],
     sortDir: pagination.sortDir || null,
   }
 }

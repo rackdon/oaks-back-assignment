@@ -7,7 +7,7 @@ import { Sequelize } from 'sequelize'
 import { manageDbErrors } from './errors'
 import { ApiError } from '../model/error'
 import { Either, EitherI } from '../model/either'
-import { Task, TaskCreation, TasksFilters } from '../model/tasks'
+import { Task, TaskCreation, TaskEdition, TasksFilters } from '../model/tasks'
 import { DataWithPages, Pagination } from '../model/pagination'
 import { getPages, getPaginationQuery } from './pagination'
 
@@ -30,6 +30,27 @@ export class TasksRepository {
         phaseId,
       })
       return result['dataValues']
+    })
+    return result.mapLeft((e) => {
+      return manageDbErrors(e, this.logger)
+    })
+  }
+
+  async updateTask(
+    id: string,
+    data: TaskEdition
+  ): Promise<Either<ApiError, Task | null>> {
+    const result = await EitherI.catchA(async () => {
+      /* eslint-disable  @typescript-eslint/no-unused-vars */
+      const [elems, resultArr] = await this.pgClient.models.Task.update(
+        { ...data, updatedOn: new Date() },
+        {
+          where: { id },
+          returning: true,
+        }
+      )
+      const updatedModel = resultArr[0]
+      return updatedModel ? updatedModel['dataValues'] : null
     })
     return result.mapLeft((e) => {
       return manageDbErrors(e, this.logger)

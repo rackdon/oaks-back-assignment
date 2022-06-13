@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { randomUUID } from 'crypto'
 import { STRING_LIMIT } from './constants'
-import { Task, TaskCreation } from '../../../model/tasks'
+import { Task, TaskCreation, TaskEdition } from '../../../model/tasks'
 
 export function generateTaskCreation(
   name?: string,
@@ -10,6 +10,16 @@ export function generateTaskCreation(
   return {
     name: name || faker.random.alpha(STRING_LIMIT),
     phaseId: phaseId || faker.random.alpha(STRING_LIMIT),
+  }
+}
+
+export function generateTaskEdition(
+  name?: string,
+  done?: boolean
+): TaskEdition {
+  return {
+    name: name || faker.random.alpha(STRING_LIMIT),
+    done: done !== undefined ? done : Math.random() < 0.5,
   }
 }
 

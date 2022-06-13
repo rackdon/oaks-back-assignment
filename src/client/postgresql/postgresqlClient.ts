@@ -3,6 +3,8 @@ import winston from 'winston'
 import { PostgresqlConfig } from '../../configuration/postgresqlConfig'
 import { Sequelize } from 'sequelize'
 import { EntitiesInitializer } from '../../repository/entity/entitiesInitializer'
+// const pg = require('pg');
+import { types } from 'pg'
 
 export class PostgresqlClient {
   readonly client: Sequelize
@@ -28,6 +30,7 @@ export class PostgresqlClient {
   ): PostgresqlClient {
     const instance = new PostgresqlClient(config, loggerConfig)
 
+    types.setTypeParser(1114, (str: string) => new Date(`${str} GMT+0000`))
     instance.client.validate().then(() => {
       instance.closedConnection = false
       instance.logger.info('DB connected')

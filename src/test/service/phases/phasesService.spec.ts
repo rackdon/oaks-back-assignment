@@ -169,7 +169,7 @@ describe('Get phases', () => {
     const paginationFilters: Pagination = {
       pageSize: filters.pageSize,
       page: 0,
-      sort: [],
+      sort: ['createdOn'],
       sortDir: null,
     }
     const phasesRepository: PhasesRepository = phasesRepositoryMock({

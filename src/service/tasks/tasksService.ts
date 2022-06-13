@@ -1,29 +1,71 @@
 import winston from 'winston'
 import { LoggerConfig } from '../../configuration/loggerConfig'
 import { Either, EitherI } from '../../model/either'
-import { ApiError, NotFound } from '../../model/error'
+import { ApiError, BadRequest, NotFound } from '../../model/error'
 import { TasksRepository } from '../../repository/tasksRepository'
 import {
   PaginatedTasksFilters,
   Task,
   TaskCreation,
+  TaskEdition,
   toTasksFilters,
 } from '../../model/tasks'
 import { DataWithPages, toPagination } from '../../model/pagination'
+import { PhasesRepository } from '../../repository/phasesRepository'
 
 export class TasksService {
   readonly logger: winston.Logger
   readonly tasksRepository: TasksRepository
+  readonly phasesRepository: PhasesRepository
 
-  constructor(tasksRepository: TasksRepository, loggerConfig: LoggerConfig) {
+  constructor(
+    tasksRepository: TasksRepository,
+    phasesRepository: PhasesRepository,
+    loggerConfig: LoggerConfig
+  ) {
     this.logger = loggerConfig.create(TasksService.name)
     this.tasksRepository = tasksRepository
+    this.phasesRepository = phasesRepository
   }
 
   async createTask(
     taskCreation: TaskCreation
   ): Promise<Either<ApiError, Task>> {
     return this.tasksRepository.insertTask(taskCreation)
+  }
+
+  async editTask(
+    id: string,
+    taskEdition: TaskEdition
+  ): Promise<Either<ApiError, Task>> {
+    const taskResult = await this.getTaskById(id)
+    if ('done' in taskEdition) {
+      const updateResult = await taskResult.mapA(async (task) => {
+        const currentPhase = await this.phasesRepository.getPhaseById(
+          task.phaseId,
+          'PhaseRaw'
+        )
+        const previousPhases = await currentPhase.mapA(async (currentPhase) => {
+          return await this.phasesRepository.getPhases(
+            'PhaseRaw',
+            { createdBefore: currentPhase.createdOn },
+            toPagination({})
+          )
+        })
+        const finalResult = await previousPhases.bind().mapA(async (phases) => {
+          return phases.data.some((x) => !x.done)
+            ? EitherI.Left(new BadRequest(['previous phases must be done']))
+            : await this.tasksRepository.updateTask(id, taskEdition)
+        })
+        return finalResult.bind()
+      })
+      return updateResult.bind()
+    } else {
+      const updateResult = await taskResult.mapA(() => {
+        return this.tasksRepository.updateTask(id, taskEdition)
+      })
+      return updateResult.bind()
+    }
   }
 
   async getTasks(

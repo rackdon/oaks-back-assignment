@@ -27,12 +27,12 @@ export class TasksEntity {
     },
     createdOn: {
       type: DataTypes.DATE,
-      defaultValue: new Date(),
+      defaultValue: () => new Date(),
       allowNull: false,
     },
     updatedOn: {
       type: DataTypes.DATE,
-      defaultValue: new Date(),
+      defaultValue: () => new Date(),
       allowNull: false,
     },
   }

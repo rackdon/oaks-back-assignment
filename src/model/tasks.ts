@@ -10,6 +10,7 @@ export interface Task {
 }
 
 export type TaskCreation = Pick<Task, 'name' | 'phaseId'>
+export type TaskEdition = Partial<Pick<Task, 'name' | 'done'>>
 
 export interface TasksFilters {
   name?: string

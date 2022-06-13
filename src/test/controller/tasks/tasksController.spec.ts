@@ -4,10 +4,11 @@ import { LoggerConfig } from '../../../configuration/loggerConfig'
 import { mockRequest, MockResponse } from '../utils'
 import { BadRequest, Conflict, Internal, NotFound } from '../../../model/error'
 import { EitherI } from '../../../model/either'
-import { Task, TaskCreation } from '../../../model/tasks'
+import { Task, TaskCreation, TaskEdition } from '../../../model/tasks'
 import {
   generateTask,
   generateTaskCreation,
+  generateTaskEdition,
 } from '../../utils/generators/tasksGenerator'
 import { TasksService } from '../../../service/tasks/tasksService'
 import { tasksServiceMock } from '../../mocks/tasks/tasksMocks'
@@ -71,6 +72,104 @@ describe('Create task', () => {
 
     expect(mockResponse.statusCode).toEqual(500)
     expect(tasksService.createTask).toBeCalledWith(taskCreation)
+  })
+})
+
+describe('Edit task', () => {
+  const loggerConfig = new LoggerConfig()
+  const task: Task = generateTask()
+  const taskEdition: TaskEdition = generateTaskEdition()
+  it('returns 200 with the updated task', async () => {
+    const tasksService: TasksService = tasksServiceMock({
+      editTask: jest.fn().mockImplementation(() => {
+        return EitherI.Right(task)
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new TasksController(tasksService, loggerConfig)
+
+    await controller.editTask(
+      mockRequest({ id: task.id }, taskEdition, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(200)
+    expect(mockResponse.body).toEqual(task)
+    expect(tasksService.editTask).toBeCalledWith(task.id, taskEdition)
+  })
+
+  it('returns 400 with errors', async () => {
+    const tasksService: TasksService = tasksServiceMock({
+      editTask: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new BadRequest(['error']))
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new TasksController(tasksService, loggerConfig)
+
+    await controller.editTask(
+      mockRequest({ id: task.id }, taskEdition, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(400)
+    expect(mockResponse.body).toEqual({ errors: ['error'] })
+    expect(tasksService.editTask).toBeCalledWith(task.id, taskEdition)
+  })
+
+  it('returns 404', async () => {
+    const tasksService: TasksService = tasksServiceMock({
+      editTask: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new NotFound())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new TasksController(tasksService, loggerConfig)
+
+    await controller.editTask(
+      mockRequest({ id: task.id }, taskEdition, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(404)
+    expect(tasksService.editTask).toBeCalledWith(task.id, taskEdition)
+  })
+
+  it('returns 409 with errors', async () => {
+    const tasksService: TasksService = tasksServiceMock({
+      editTask: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Conflict(['error']))
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new TasksController(tasksService, loggerConfig)
+
+    await controller.editTask(
+      mockRequest({ id: task.id }, taskEdition, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(409)
+    expect(mockResponse.body).toEqual({ errors: ['error'] })
+    expect(tasksService.editTask).toBeCalledWith(task.id, taskEdition)
+  })
+
+  it('returns 500', async () => {
+    const tasksService: TasksService = tasksServiceMock({
+      editTask: jest.fn().mockImplementation(() => {
+        return EitherI.Left(new Internal())
+      }),
+    })
+    const mockResponse = new MockResponse()
+    const controller = new TasksController(tasksService, loggerConfig)
+
+    await controller.editTask(
+      mockRequest({ id: task.id }, taskEdition, null),
+      mockResponse
+    )
+
+    expect(mockResponse.statusCode).toEqual(500)
+    expect(tasksService.editTask).toBeCalledWith(task.id, taskEdition)
   })
 })
 

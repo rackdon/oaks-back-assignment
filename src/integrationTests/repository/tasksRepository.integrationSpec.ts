@@ -14,6 +14,7 @@ import { TasksRepository } from '../../repository/tasksRepository'
 import { randomUUID } from 'crypto'
 import { Task } from '../../model/tasks'
 import { generateTask } from '../../test/utils/generators/tasksGenerator'
+import { generatePhase } from '../../test/utils/generators/phasesGenerator'
 
 describe('tasksRepository', () => {
   const dbConfig = getDatabaseTestConfig()
@@ -62,6 +63,33 @@ describe('tasksRepository', () => {
         'insert or update on table "tasks" violates foreign key constraint "tasks_phase_id_fkey"',
       ])
     )
+  })
+
+  it('updateTask returns task with updated data', async () => {
+    const name1 = 'name'
+    const name2 = 'name2'
+    const phase = await factory.insertPhase()
+    const task = await factory.insertTask(
+      phase.id,
+      generateTask(undefined, phase.id, name1, false)
+    )
+    const result = await tasksRepository.updateTask(task.id, {
+      name: name2,
+      done: true,
+    })
+    expectRight(result, (x) => {
+      return { name: x.name, done: x.done }
+    }).toEqual({ name: name2, done: true })
+  })
+
+  it('updatePhase returns null if phase does not exists', async () => {
+    const name2 = 'name2'
+    const result = await tasksRepository.updateTask(randomUUID(), {
+      name: name2,
+      done: true,
+    })
+    expectLeft(result).toEqual(null)
+    expectRight(result).toEqual(null)
   })
 
   it('getTasks returns all tasks', async () => {
