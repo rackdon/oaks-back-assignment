@@ -21,7 +21,7 @@ import { generatePhase } from '../../utils/generators/phasesGenerator'
 describe('Create task', () => {
   it('creates the task correctly', async () => {
     const taskCreation: TaskCreation = generateTaskCreation()
-    const phase: Phase = generatePhase()
+    const phase: Phase = generatePhase(undefined, undefined, false)
     const task: Task = generateTask()
     const phasesRepository: PhasesRepository = phasesRepositoryMock({
       getPhaseById: jest.fn().mockImplementation(() => {
