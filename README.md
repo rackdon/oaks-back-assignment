@@ -1,6 +1,19 @@
 # oaks-back-assignment
 Oak's Lab backend assignment 
 
+# Table of Contents
+1. [Requirements](#requirements)
+2. [Commands](#commands)
+3. [Migrations](#migrations)
+4. [Env vars](#env-vars)
+
+
+## Requirements
+- Every phase can have an unlimited amount of tasks
+- If the startup accomplishes all tasks in the phase, it’s marked as done and unlocks the next phase.
+- Tasks cannot be marked as completed unless all tasks in the previous phase were completed.
+
+
 ## Commands
 
 - npm run build -> Create the build
@@ -36,14 +49,14 @@ Required env vars before launch the service (if no default value present)
 
 NAME:type(default)
 
--   SERVER_PORT: number(8080)
--   LOG_LEVEL: {debug, info, warn, error}(warn)
--   SENTRY_DSN: string(''')
--   SENTRY_ENVIRONMENT: string(''')
--   SENTRY_RELEASE: string(''')
--   DB_HOST: string
--   DB_PORT: string
--   DB_NAME: string
--   DB_USERNAME: string
--   DB_PASSWORD: string
--   DB_LOG: boolean(false)
+- SERVER_PORT: number(8080)
+- LOG_LEVEL: {debug, info, warn, error}(warn)
+- SENTRY_DSN: string(''')
+- SENTRY_ENVIRONMENT: string(''')
+- SENTRY_RELEASE: string(''')
+- DB_HOST: string
+- DB_PORT: string
+- DB_NAME: string
+- DB_USERNAME: string
+- DB_PASSWORD: string
+- DB_LOG: boolean(false)
