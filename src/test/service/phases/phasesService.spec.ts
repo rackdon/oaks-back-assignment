@@ -111,13 +111,46 @@ describe('Edit phase', () => {
     )
   })
 
+  it('checks if previous phases done and return bad request if not', async () => {
+    const phaseEdition: PhaseEdition = { name: 'asdf', done: true }
+    const task = generateTask(undefined, undefined, undefined, true)
+    const phase = generatePhase(undefined, undefined, false)
+    const currentPhase = generatePhase()
+    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+      getPhaseById: jest.fn().mockImplementation(() => {
+        return EitherI.Right({ ...currentPhase, tasks: [task] })
+      }),
+      getPhases: jest.fn().mockImplementation(() => {
+        return EitherI.Right({ data: [phase] })
+      }),
+    })
+    const loggerConfig = new LoggerConfig()
+    const service = new PhasesService(phasesRepository, loggerConfig)
+    const result = await service.editPhase(phase.id, phaseEdition)
+
+    expectLeft(result, (x) => x.constructor).toEqual(BadRequest)
+    expect(phasesRepository.getPhaseById).toBeCalledWith(
+      phase.id,
+      'PhaseWithTasks'
+    )
+    expect(phasesRepository.getPhases).toBeCalledWith(
+      'PhaseRaw',
+      { createdBefore: currentPhase.createdOn },
+      { page: 0, pageSize: 10, sort: ['createdOn'], sortDir: null }
+    )
+  })
+
   it('checks if all task are done and then try to update phase returning update error', async () => {
     const phaseEdition: PhaseEdition = { name: 'asdf', done: true }
     const task = generateTask(undefined, undefined, undefined, true)
-    const phase = generatePhase()
+    const phase = generatePhase(undefined, undefined, true)
+    const currentPhase = generatePhase()
     const phasesRepository: PhasesRepository = phasesRepositoryMock({
       getPhaseById: jest.fn().mockImplementation(() => {
-        return EitherI.Right({ ...generatePhase(), tasks: [task] })
+        return EitherI.Right({ ...currentPhase, tasks: [task] })
+      }),
+      getPhases: jest.fn().mockImplementation(() => {
+        return EitherI.Right({ data: [phase] })
       }),
       updatePhase: jest.fn().mockImplementation(() => {
         return EitherI.Left(new Internal())
@@ -132,16 +165,25 @@ describe('Edit phase', () => {
       phase.id,
       'PhaseWithTasks'
     )
+    expect(phasesRepository.getPhases).toBeCalledWith(
+      'PhaseRaw',
+      { createdBefore: currentPhase.createdOn },
+      { page: 0, pageSize: 10, sort: ['createdOn'], sortDir: null }
+    )
     expect(phasesRepository.updatePhase).toBeCalledWith(phase.id, phaseEdition)
   })
 
   it('checks if all task are done and then update phase and return it', async () => {
     const phaseEdition: PhaseEdition = { name: 'asdf', done: true }
     const task = generateTask(undefined, undefined, undefined, true)
-    const phase = generatePhase()
+    const phase = generatePhase(undefined, undefined, true)
+    const currentPhase = generatePhase()
     const phasesRepository: PhasesRepository = phasesRepositoryMock({
       getPhaseById: jest.fn().mockImplementation(() => {
-        return EitherI.Right({ ...generatePhase(), tasks: [task] })
+        return EitherI.Right({ ...currentPhase, tasks: [task] })
+      }),
+      getPhases: jest.fn().mockImplementation(() => {
+        return EitherI.Right({ data: [phase] })
       }),
       updatePhase: jest.fn().mockImplementation(() => {
         return EitherI.Right(phase)
@@ -155,6 +197,11 @@ describe('Edit phase', () => {
     expect(phasesRepository.getPhaseById).toBeCalledWith(
       phase.id,
       'PhaseWithTasks'
+    )
+    expect(phasesRepository.getPhases).toBeCalledWith(
+      'PhaseRaw',
+      { createdBefore: currentPhase.createdOn },
+      { page: 0, pageSize: 10, sort: ['createdOn'], sortDir: null }
     )
     expect(phasesRepository.updatePhase).toBeCalledWith(phase.id, phaseEdition)
   })

@@ -38,16 +38,25 @@ export class PhasesService {
       const phaseResult = await this.getPhaseById(id, {
         projection: 'PhaseWithTasks',
       })
-      const editionResult = await phaseResult
+      const findResult = await phaseResult
         .map((phase) => {
           return phase.tasks.filter((task) => !task.done).length === 0
             ? phase
             : EitherI.Left(new BadRequest(['all tasks must be done']))
         })
         .bind()
-        .mapA(() => {
-          return this.phasesRepository.updatePhase(id, phaseEdition)
+        .mapA((phase) => {
+          return this.phasesRepository.getPhases(
+            'PhaseRaw',
+            { createdBefore: phase.createdOn },
+            toPagination({})
+          )
         })
+      const editionResult = await findResult.bind().mapA(async (phases) => {
+        return phases.data.some((x) => !x.done)
+          ? EitherI.Left(new BadRequest(['previous phases must be done']))
+          : await this.phasesRepository.updatePhase(id, phaseEdition)
+      })
       return editionResult.bind()
     } else {
       const result = await this.phasesRepository.updatePhase(id, phaseEdition)
