@@ -45,6 +45,12 @@ describe('Either with right value', () => {
     expect(await eitherRight.foldA(fLeft, fRight)).toEqual(EitherI.Right(2))
   })
 
+  it('fold extract apply function over right side when there is right value and return it', () => {
+    const fRight = (x) => x + 1
+    const fLeft = (x) => 'error'
+    expect(eitherRight.foldExtract(fLeft, fRight)).toEqual(2)
+  })
+
   it('flatMap apply the function over right either value', () => {
     const doubleEither = EitherI.Right(EitherI.Right(1))
     const f = (x) => x + 1

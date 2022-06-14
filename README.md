@@ -194,6 +194,7 @@ body without mandatory fields
 - Don't allow to create tasks if related phase is already done
 - Force to mark phase as done by hand to ensure that create more task for that
   phase is not wanted (couldn't be possible if phase is done)
+- Allow to update phase and task name
  
 ## Future improvements
 

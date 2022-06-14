@@ -81,6 +81,10 @@ export class EitherI<A, B> {
       : new EitherI(this.a, g(this.b))
   }
 
+  foldExtract<C, D>(f: (x: A) => C, g: (x: B) => D): C | D {
+    return this.isLeft() ? f(this.a) : g(this.b)
+  }
+
   flatMap<C>(f: (x: B) => Either<A, C>): Either<A, C> {
     return this.isRight()
       ? new EitherI(this.a, f((this.b as unknown as Either<A, B>).extract()))
