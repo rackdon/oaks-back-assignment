@@ -32,14 +32,10 @@ export class PhasesEntity {
   }
 
   constructor(sequelize: Sequelize) {
-    const phase = sequelize.define('Phase', this.phaseModel, {
+    sequelize.define('Phase', this.phaseModel, {
       tableName: this.table,
       timestamps: false,
       underscored: true,
-    })
-    phase.hasMany(sequelize.models.Task, {
-      as: 'tasks',
-      foreignKey: 'phase_id',
     })
   }
 }
