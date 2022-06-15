@@ -99,4 +99,12 @@ export class TasksService {
   async deleteTaskById(id: string): Promise<Either<ApiError, number>> {
     return this.tasksRepository.deleteTaskById(id)
   }
+
+  getGraphTasksResolver() {
+    return this.tasksRepository.getGraphTasksResolver()
+  }
+
+  getGraphTaskPhaseResolver() {
+    return this.tasksRepository.getGraphTaskPhaseResolver()
+  }
 }

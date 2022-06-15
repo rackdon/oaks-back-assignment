@@ -99,4 +99,12 @@ export class PhasesService {
   async deletePhaseById(id: string): Promise<Either<ApiError, number>> {
     return this.phasesRepository.deletePhaseById(id)
   }
+
+  getGraphPhasesResolver() {
+    return this.phasesRepository.getGraphPhasesResolver()
+  }
+
+  getGraphPhasesTasksResolver() {
+    return this.phasesRepository.getGraphPhasesTasks()
+  }
 }

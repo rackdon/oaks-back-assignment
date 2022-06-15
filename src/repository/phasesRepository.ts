@@ -17,6 +17,7 @@ import {
 } from '../model/phases'
 import { DataWithPages, Pagination } from '../model/pagination'
 import { getPages, getPaginationQuery } from './pagination'
+import { resolver } from 'graphql-sequelize'
 
 export class PhasesRepository {
   readonly logger: winston.Logger
@@ -153,5 +154,24 @@ export class PhasesRepository {
     return result.mapLeft((e) => {
       return manageDbErrors(e, this.logger)
     })
+  }
+
+  getGraphPhasesResolver() {
+    return resolver(this.pgClient.models.Phase, {
+      before: (findOptions, args) => {
+        findOptions.where = findOptions.where || {}
+        if (args.createdBefore) {
+          findOptions.where.createdOn = { [Op.lt]: args.createdBefore }
+        }
+        if (args.createdAfter) {
+          findOptions.where.createdOn = { [Op.gt]: args.createdBefore }
+        }
+        return findOptions
+      },
+    })
+  }
+
+  getGraphPhasesTasks() {
+    return resolver(this.pgClient.models.Phase['tasks'])
   }
 }

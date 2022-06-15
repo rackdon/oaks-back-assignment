@@ -10,6 +10,7 @@ import { Either, EitherI } from '../model/either'
 import { Task, TaskCreation, TaskEdition, TasksFilters } from '../model/tasks'
 import { DataWithPages, Pagination } from '../model/pagination'
 import { getPages, getPaginationQuery } from './pagination'
+import { resolver } from 'graphql-sequelize'
 
 export class TasksRepository {
   readonly logger: winston.Logger
@@ -113,5 +114,13 @@ export class TasksRepository {
     return result.mapLeft((e) => {
       return manageDbErrors(e, this.logger)
     })
+  }
+
+  getGraphTasksResolver() {
+    return resolver(this.pgClient.models.Task)
+  }
+
+  getGraphTaskPhaseResolver() {
+    return resolver(this.pgClient.models.Task['phase'])
   }
 }

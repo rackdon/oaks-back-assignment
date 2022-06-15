@@ -1,16 +1,12 @@
-import { Op, Sequelize } from 'sequelize'
 import {
   GraphQLBoolean,
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
-  GraphQLScalarType,
   GraphQLSchema,
   GraphQLString,
 } from 'graphql'
-import { resolver } from 'graphql-sequelize'
-import { PostgresqlClient } from '../client/postgresql/postgresqlClient'
 import { PhaseCreation } from '../model/phases'
 import { PhasesService } from '../service/phases/phasesService'
 import { TasksService } from '../service/tasks/tasksService'
@@ -25,73 +21,42 @@ import winston from 'winston'
 import { LoggerConfig } from '../configuration/loggerConfig'
 import { GraphQLUUID } from 'graphql-scalars'
 import { TaskCreation } from '../model/tasks'
+import { dateScalarType, getPhaseType, getTaskType } from '../model/graphTypes'
 
 export class ApiGraphController {
-  readonly pgClient: Sequelize
   readonly phasesService: PhasesService
   readonly tasksService: TasksService
   readonly logger: winston.Logger
-  readonly dateScalarType = new GraphQLScalarType({
-    name: 'Date',
-    description: 'Date custom scalar type',
-    parseValue(value) {
-      return value
-    },
-    serialize(value) {
-      return value
-    },
-  })
-  private readonly phaseType = new GraphQLObjectType({
-    name: 'Phase',
-    fields: () => ({
-      id: { type: GraphQLUUID },
-      name: { type: GraphQLString },
-      done: { type: GraphQLBoolean },
-      createdOn: {
-        type: this.dateScalarType,
-      },
-      updatedOn: { type: this.dateScalarType },
-      tasks: {
-        type: new GraphQLList(this.taskType),
-        resolve: resolver(this.pgClient.models.Phase['tasks']),
-      },
-    }),
-  })
 
-  private readonly taskType = new GraphQLObjectType({
-    name: 'Task',
-    fields: () => ({
-      id: { type: GraphQLUUID },
-      phaseId: { type: GraphQLString },
-      name: { type: GraphQLString },
-      done: { type: GraphQLBoolean },
-      createdOn: {
-        type: this.dateScalarType,
-      },
-      updatedOn: { type: this.dateScalarType },
-      phase: {
-        type: this.phaseType,
-        resolve: resolver(this.pgClient.models.Task['phase']),
-      },
-    }),
-  })
+  private readonly phaseType
+  private readonly taskType
 
   constructor(
-    pgClient: PostgresqlClient,
     phasesService: PhasesService,
     tasksService: TasksService,
     loggerConfig: LoggerConfig
   ) {
-    this.pgClient = pgClient.client
     this.phasesService = phasesService
     this.tasksService = tasksService
     this.logger = loggerConfig.create(ApiGraphController.name)
+    this.taskType = getTaskType('Task', {
+      phase: {
+        type: getPhaseType('BasePhase'),
+        resolve: this.tasksService.getGraphTaskPhaseResolver(),
+      },
+    })
+    this.phaseType = getPhaseType('Phase', {
+      tasks: {
+        type: new GraphQLList(getTaskType('BaseTask')),
+        resolve: this.phasesService.getGraphPhasesTasksResolver(),
+      },
+    })
   }
 
   getApiSchema = (): GraphQLSchema => {
     return new GraphQLSchema({
       query: new GraphQLObjectType({
-        name: 'RootQueryType',
+        name: 'RootQuery',
         fields: {
           phases: {
             type: new GraphQLList(this.phaseType),
@@ -102,30 +67,19 @@ export class ApiGraphController {
               done: {
                 type: GraphQLBoolean,
               },
-              createdBefore: { type: this.dateScalarType },
-              createdAfter: { type: this.dateScalarType },
+              createdBefore: { type: dateScalarType },
+              createdAfter: { type: dateScalarType },
               limit: {
                 type: GraphQLInt,
               },
               offset: {
                 type: GraphQLInt,
               },
-              // order: {
-              //   type: GraphQLString,
-              // },
-            },
-            resolve: resolver(this.pgClient.models.Phase, {
-              before: (findOptions, args) => {
-                findOptions.where = findOptions.where || {}
-                if (args.createdBefore) {
-                  findOptions.where.createdOn = { [Op.lt]: args.createdBefore }
-                }
-                if (args.createdAfter) {
-                  findOptions.where.createdOn = { [Op.gt]: args.createdBefore }
-                }
-                return findOptions
+              order: {
+                type: GraphQLString,
               },
-            }),
+            },
+            resolve: this.phasesService.getGraphPhasesResolver(),
           },
           phase: {
             type: this.phaseType,
@@ -135,7 +89,7 @@ export class ApiGraphController {
                 type: new GraphQLNonNull(GraphQLUUID),
               },
             },
-            resolve: resolver(this.pgClient.models.Phase),
+            resolve: this.phasesService.getGraphPhasesResolver(),
           },
 
           tasks: {
@@ -156,11 +110,11 @@ export class ApiGraphController {
               offset: {
                 type: GraphQLInt,
               },
-              // order: {
-              //   type: GraphQLString,
-              // },
+              order: {
+                type: GraphQLString,
+              },
             },
-            resolve: resolver(this.pgClient.models.Task),
+            resolve: this.tasksService.getGraphTasksResolver(),
           },
           task: {
             type: this.taskType,
@@ -170,12 +124,12 @@ export class ApiGraphController {
                 type: new GraphQLNonNull(GraphQLUUID),
               },
             },
-            resolve: resolver(this.pgClient.models.Task),
+            resolve: this.tasksService.getGraphTasksResolver(),
           },
         },
       }),
       mutation: new GraphQLObjectType({
-        name: 'RootMutationType',
+        name: 'RootMutation',
         fields: {
           createPhase: {
             type: this.phaseType,
