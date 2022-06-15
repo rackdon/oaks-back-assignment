@@ -11,8 +11,10 @@ import { DataWithPages, Pagination } from '../model/pagination'
 export class TasksMemoryRepository implements TasksRepository {
   dbClient: Sequelize
   logger: winston.Logger
+  readonly memoryClient: MemoryClient
 
   constructor(memoryClient: MemoryClient, loggerConfig: LoggerConfig) {
+    this.memoryClient = memoryClient
     this.dbClient = memoryClient.client
     this.logger = loggerConfig.create(TasksMemoryRepository.name)
   }

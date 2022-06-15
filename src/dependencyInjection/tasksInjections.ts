@@ -6,11 +6,12 @@ import { TasksController } from '../controller/tasks/tasksController'
 import { phasesRepository } from './phasesInjections'
 import { PostgresqlClient } from '../client/database/postgresqlClient'
 import { TasksMemoryRepository } from '../repository/tasksMemoryRepository'
+import { MemoryClient } from '../client/database/memoryClient'
 
 const tasksRepository =
   dbClient.constructor === PostgresqlClient
     ? new TasksDbRepository(dbClient, loggerConfig)
-    : new TasksMemoryRepository(dbClient, loggerConfig)
+    : new TasksMemoryRepository(dbClient as MemoryClient, loggerConfig)
 const tasksService = new TasksService(
   tasksRepository,
   phasesRepository,
