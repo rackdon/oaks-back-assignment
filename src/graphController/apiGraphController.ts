@@ -210,7 +210,10 @@ export class ApiGraphController {
               },
             },
             resolve: async (root, args) => {
-              const { id } = args
+              const { id, done } = args
+              if ('done' in args && done === false) {
+                throw new Error('Only true is allowed in done param')
+              }
               delete args.id
               const result = await this.phasesService.editPhase(id, args)
               return result.foldExtract(
@@ -272,8 +275,11 @@ export class ApiGraphController {
               },
             },
             resolve: async (root, args) => {
-              const { id } = args
+              const { id, done } = args
               delete args.id
+              if ('done' in args && done === false) {
+                throw new Error('Only true is allowed in done param')
+              }
               const result = await this.tasksService.editTask(id, args)
               return result.foldExtract(
                 (err) => this.manageErrors(err),

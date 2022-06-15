@@ -9,8 +9,9 @@ Oak's Lab backend assignment
 5. [Migrations](#migrations)
 6. [Env vars](#env-vars)
 7. [Rest endpoints](#rest-endpoints)
-8. [Current Improvements](#current-improvements)
-9. [Future Improvements](#future-improvements)
+8. [Graph endpoints](#graph-endpoint)
+9. [Current Improvements](#current-improvements)
+10. [Future Improvements](#future-improvements)
 
 
 ## Requirements
@@ -186,6 +187,8 @@ body without mandatory fields
 ```
 - DELETE /api/tasks/:id
 
+## Graph endpoint
+- /graph/api (graphiql enabled)
 
 
 ## Current improvements
