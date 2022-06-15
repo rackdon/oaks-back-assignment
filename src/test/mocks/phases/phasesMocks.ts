@@ -1,4 +1,4 @@
-import { PhasesRepository } from '../../../repository/phasesRepository'
+import { PhasesDbRepository } from '../../../repository/phasesDbRepository'
 import { PhasesService } from '../../../service/phases/phasesService'
 
 export function phasesServiceMock(
@@ -17,9 +17,9 @@ export function phasesServiceMock(
 
 export function phasesRepositoryMock(
   args: Record<string, unknown>
-): PhasesRepository {
-  return <PhasesRepository>{
-    pgClient: args.pgClient,
+): PhasesDbRepository {
+  return <PhasesDbRepository>{
+    dbClient: args.pgClient,
     logger: args.logger,
     insertPhase: args.insertPhase,
     updatePhase: args.updatePhase,

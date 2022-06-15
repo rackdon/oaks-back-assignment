@@ -1,6 +1,9 @@
 import { loggerConfig, postgresqlConfig } from './configInjections'
-import { PostgresqlClient } from '../client/postgresql/postgresqlClient'
+import { PostgresqlClient } from '../client/database/postgresqlClient'
+import { MemoryClient } from '../client/database/memoryClient'
 
-const pgClient = PostgresqlClient.Create(postgresqlConfig, loggerConfig)
+const dbClient = postgresqlConfig.dbMemory
+  ? new MemoryClient(loggerConfig)
+  : PostgresqlClient.Create(postgresqlConfig, loggerConfig)
 
-export { pgClient }
+export { dbClient }

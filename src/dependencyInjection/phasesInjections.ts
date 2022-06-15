@@ -1,10 +1,15 @@
-import { PhasesRepository } from '../repository/phasesRepository'
-import { pgClient } from './postgresqlInjections'
+import { PhasesDbRepository } from '../repository/phasesDbRepository'
+import { dbClient } from './postgresqlInjections'
 import { loggerConfig } from './configInjections'
 import { PhasesService } from '../service/phases/phasesService'
 import { PhasesController } from '../controller/phases/phasesController'
+import { PostgresqlClient } from '../client/database/postgresqlClient'
+import { PhasesMemoryRepository } from '../repository/phasesMemoryRepository'
 
-const phasesRepository = new PhasesRepository(pgClient, loggerConfig)
+const phasesRepository =
+  dbClient.constructor === PostgresqlClient
+    ? new PhasesDbRepository(dbClient, loggerConfig)
+    : new PhasesMemoryRepository(dbClient, loggerConfig)
 const phasesService = new PhasesService(phasesRepository, loggerConfig)
 const phasesController = new PhasesController(phasesService, loggerConfig)
 

@@ -32,4 +32,6 @@ app.use('/graph', graphRoutes.router)
 
 app.use(Sentry.Handlers.errorHandler())
 
-server.listen(serverConfig.port)
+server.listen(serverConfig.port, () => {
+  console.log(`Server started at port ${serverConfig.port}`)
+})

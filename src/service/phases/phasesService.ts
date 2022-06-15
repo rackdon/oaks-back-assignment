@@ -2,7 +2,6 @@ import winston from 'winston'
 import { LoggerConfig } from '../../configuration/loggerConfig'
 import { Either, EitherI } from '../../model/either'
 import { ApiError, BadRequest, NotFound } from '../../model/error'
-import { PhasesRepository } from '../../repository/phasesRepository'
 import {
   PaginatedPhasesFilters,
   Phase,
@@ -13,6 +12,7 @@ import {
   toPhasesFilters,
 } from '../../model/phases'
 import { DataWithPages, toPagination } from '../../model/pagination'
+import { PhasesRepository } from '../../repository/phasesRepository'
 
 export class PhasesService {
   readonly logger: winston.Logger

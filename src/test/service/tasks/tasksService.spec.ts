@@ -8,13 +8,13 @@ import {
   generateTask,
   generateTaskCreation,
 } from '../../utils/generators/tasksGenerator'
-import { TasksRepository } from '../../../repository/tasksRepository'
+import { TasksDbRepository } from '../../../repository/tasksDbRepository'
 import { tasksRepositoryMock } from '../../mocks/tasks/tasksMocks'
 import { TasksService } from '../../../service/tasks/tasksService'
 import { Phase, PhasesFilters } from '../../../model/phases'
 import { DataWithPages, Pagination } from '../../../model/pagination'
 import { BadRequest, Internal, NotFound } from '../../../model/error'
-import { PhasesRepository } from '../../../repository/phasesRepository'
+import { PhasesDbRepository } from '../../../repository/phasesDbRepository'
 import { phasesRepositoryMock } from '../../mocks/phases/phasesMocks'
 import { generatePhase } from '../../utils/generators/phasesGenerator'
 
@@ -23,12 +23,12 @@ describe('Create task', () => {
     const taskCreation: TaskCreation = generateTaskCreation()
     const phase: Phase = generatePhase(undefined, undefined, false)
     const task: Task = generateTask()
-    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+    const phasesRepository: PhasesDbRepository = phasesRepositoryMock({
       getPhaseById: jest.fn().mockImplementation(() => {
         return EitherI.Right(phase)
       }),
     })
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       insertTask: jest.fn().mockImplementation(() => {
         return EitherI.Right(task)
       }),
@@ -51,12 +51,12 @@ describe('Create task', () => {
 
   it('returns bad request if phase does not exist', async () => {
     const taskCreation: TaskCreation = generateTaskCreation()
-    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+    const phasesRepository: PhasesDbRepository = phasesRepositoryMock({
       getPhaseById: jest.fn().mockImplementation(() => {
         return EitherI.Right(null)
       }),
     })
-    const tasksRepository: TasksRepository = tasksRepositoryMock({})
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({})
     const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
@@ -75,12 +75,12 @@ describe('Create task', () => {
   it('returns bad request if phase is already done', async () => {
     const taskCreation: TaskCreation = generateTaskCreation()
     const phase = generatePhase(undefined, undefined, true)
-    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+    const phasesRepository: PhasesDbRepository = phasesRepositoryMock({
       getPhaseById: jest.fn().mockImplementation(() => {
         return EitherI.Right(null)
       }),
     })
-    const tasksRepository: TasksRepository = tasksRepositoryMock({})
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({})
     const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
@@ -98,12 +98,12 @@ describe('Create task', () => {
 })
 
 describe('Edit task', () => {
-  const phasesRepository: PhasesRepository = phasesRepositoryMock({})
+  const phasesRepository: PhasesDbRepository = phasesRepositoryMock({})
   const loggerConfig = new LoggerConfig()
   it('updates the task directly if done is no present and return updated task', async () => {
     const taskEdition: TaskEdition = { name: 'asdf' }
     const task = generateTask()
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       getTaskById: jest.fn().mockImplementation(() => {
         return EitherI.Right(task)
       }),
@@ -126,7 +126,7 @@ describe('Edit task', () => {
   it('try to update the task directly if done is no present and return not found if task does not exist', async () => {
     const taskEdition: TaskEdition = { name: 'asdf' }
     const task = generateTask()
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       getTaskById: jest.fn().mockImplementation(() => {
         return EitherI.Right(null)
       }),
@@ -145,7 +145,7 @@ describe('Edit task', () => {
   it('try to update the task if done is present and return not found if task does not exist', async () => {
     const taskEdition: TaskEdition = { done: true }
     const task = generateTask()
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       getTaskById: jest.fn().mockImplementation(() => {
         return EitherI.Right(null)
       }),
@@ -166,12 +166,12 @@ describe('Edit task', () => {
     const task = generateTask()
     const taskPhase = generatePhase()
     const phase = generatePhase(undefined, undefined, false)
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       getTaskById: jest.fn().mockImplementation(() => {
         return EitherI.Right(task)
       }),
     })
-    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+    const phasesRepository: PhasesDbRepository = phasesRepositoryMock({
       getPhaseById: jest.fn().mockImplementation(() => {
         return EitherI.Right(taskPhase)
       }),
@@ -203,7 +203,7 @@ describe('Edit task', () => {
     const taskEdition: TaskEdition = { done: true }
     const task = generateTask()
     const taskPhase = generatePhase()
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       getTaskById: jest.fn().mockImplementation(() => {
         return EitherI.Right(task)
       }),
@@ -211,7 +211,7 @@ describe('Edit task', () => {
         return EitherI.Right(task)
       }),
     })
-    const phasesRepository: PhasesRepository = phasesRepositoryMock({
+    const phasesRepository: PhasesDbRepository = phasesRepositoryMock({
       getPhaseById: jest.fn().mockImplementation(() => {
         return EitherI.Right(taskPhase)
       }),
@@ -242,7 +242,7 @@ describe('Edit task', () => {
 })
 
 describe('Get tasks', () => {
-  const phasesRepository: PhasesRepository = phasesRepositoryMock({})
+  const phasesRepository: PhasesDbRepository = phasesRepositoryMock({})
   it('returns repository response', async () => {
     const taskData: Task = generateTask()
     const response: DataWithPages<Task> = { data: [taskData], pages: 1 }
@@ -254,7 +254,7 @@ describe('Get tasks', () => {
       sort: ['createdOn'],
       sortDir: null,
     }
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       getTasks: jest.fn().mockImplementation(() => {
         return EitherI.Right(response)
       }),
@@ -276,10 +276,10 @@ describe('Get tasks', () => {
 })
 
 describe('Get task by id', () => {
-  const phasesRepository: PhasesRepository = phasesRepositoryMock({})
+  const phasesRepository: PhasesDbRepository = phasesRepositoryMock({})
   it('returns task if exists', async () => {
     const task = generateTask()
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       getTaskById: jest.fn().mockImplementation(() => {
         return EitherI.Right(task)
       }),
@@ -297,7 +297,7 @@ describe('Get task by id', () => {
   })
   it('returns not found if task does not exist', async () => {
     const id = 'id'
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       getTaskById: jest.fn().mockImplementation(() => {
         return EitherI.Right(null)
       }),
@@ -316,7 +316,7 @@ describe('Get task by id', () => {
 
   it('returns left if present', async () => {
     const id = 'id'
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       getTaskById: jest.fn().mockImplementation(() => {
         return EitherI.Left(new Internal())
       }),
@@ -335,10 +335,10 @@ describe('Get task by id', () => {
 })
 
 describe('Delete task by id', () => {
-  const phasesRepository: PhasesRepository = phasesRepositoryMock({})
+  const phasesRepository: PhasesDbRepository = phasesRepositoryMock({})
   it('returns repository response', async () => {
     const id = 'id'
-    const tasksRepository: TasksRepository = tasksRepositoryMock({
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
       deleteTaskById: jest.fn().mockImplementation(() => {
         return EitherI.Right(1)
       }),

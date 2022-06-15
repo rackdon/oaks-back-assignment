@@ -1,13 +1,13 @@
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 
-import { PostgresqlClient } from '../../client/postgresql/postgresqlClient'
+import { PostgresqlClient } from '../../client/database/postgresqlClient'
 import { LoggerConfig } from '../../configuration/loggerConfig'
 import { DatabaseCleanerPsql } from '../utils/databaseCleanerPsql'
 import { Factory } from '../utils/factory'
 import { ApiError, Conflict, Forbidden } from '../../model/error'
 import { Either } from '../../model/either'
 import { getDatabaseTestConfig } from '../utils/databaseTestConfig'
-import { PhasesRepository } from '../../repository/phasesRepository'
+import { PhasesDbRepository } from '../../repository/phasesDbRepository'
 import { Phase, PhaseRaw, PhaseWithTasks } from '../../model/phases'
 import { expectLeft, expectRight } from '../../test/utils/expects'
 import { generatePhase } from '../../test/utils/generators/phasesGenerator'
@@ -22,7 +22,7 @@ describe('phasesRepository', () => {
   let postgresqlClient: PostgresqlClient
   let dbCleaner
   let factory: Factory
-  let phasesRepository: PhasesRepository
+  let phasesRepository: PhasesDbRepository
   beforeAll(async () => {
     postgresqlClient = await PostgresqlClient.CreateAsync(
       dbConfig,
@@ -30,7 +30,7 @@ describe('phasesRepository', () => {
     )
     dbCleaner = new DatabaseCleanerPsql(postgresqlClient.client)
     factory = new Factory(postgresqlClient.client)
-    phasesRepository = new PhasesRepository(postgresqlClient, loggerConfig)
+    phasesRepository = new PhasesDbRepository(postgresqlClient, loggerConfig)
   })
 
   beforeEach(async () => {

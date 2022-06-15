@@ -4,6 +4,7 @@
   "main": "app.js",
   "scripts": {
     "local": "nodemon dotenv_config_path=./environments/.env.local",
+    "local:memory": "nodemon dotenv_config_path=./environments/.env.memory.local",
     "build": "rimraf ./build && tsc",
     "start": "npm run build && node build/app.js",
     "lint": "eslint . --ext .ts",

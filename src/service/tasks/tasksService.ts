@@ -2,7 +2,6 @@ import winston from 'winston'
 import { LoggerConfig } from '../../configuration/loggerConfig'
 import { Either, EitherI } from '../../model/either'
 import { ApiError, BadRequest, NotFound } from '../../model/error'
-import { TasksRepository } from '../../repository/tasksRepository'
 import {
   PaginatedTasksFilters,
   Task,
@@ -11,6 +10,7 @@ import {
   toTasksFilters,
 } from '../../model/tasks'
 import { DataWithPages, toPagination } from '../../model/pagination'
+import { TasksRepository } from '../../repository/tasksRepository'
 import { PhasesRepository } from '../../repository/phasesRepository'
 
 export class TasksService {

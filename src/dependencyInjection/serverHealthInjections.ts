@@ -1,6 +1,6 @@
 import { ServerHealth } from '../service/server/serverHealth'
-import { pgClient } from './postgresqlInjections'
+import { dbClient } from './postgresqlInjections'
 
-const serverHealth = new ServerHealth(pgClient)
+const serverHealth = new ServerHealth(dbClient)
 
 export { serverHealth }

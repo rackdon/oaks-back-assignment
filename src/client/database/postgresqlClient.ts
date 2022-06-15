@@ -3,10 +3,10 @@ import winston from 'winston'
 import { PostgresqlConfig } from '../../configuration/postgresqlConfig'
 import { Sequelize } from 'sequelize'
 import { EntitiesInitializer } from '../../repository/entity/entitiesInitializer'
-// const pg = require('pg');
 import { types } from 'pg'
+import { DatabaseClient } from './databaseClient'
 
-export class PostgresqlClient {
+export class PostgresqlClient implements DatabaseClient {
   readonly client: Sequelize
   readonly logger: winston.Logger
   private closedConnection = true

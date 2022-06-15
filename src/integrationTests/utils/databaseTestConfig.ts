@@ -2,6 +2,7 @@ import { PostgresqlConfig } from '../../configuration/postgresqlConfig'
 
 export function getDatabaseTestConfig(): PostgresqlConfig {
   return new PostgresqlConfig({
+    DB_MEMORY: false,
     DB_HOST: 'localhost',
     DB_PORT: 5432,
     DB_NAME: 'oaks_test',

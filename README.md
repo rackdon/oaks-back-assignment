@@ -25,6 +25,13 @@ For the first time, npm install is needed
 $ npm install
 ```
 
+### Run with fake database (memory storage) (default)
+Run the server
+```$xslt
+$ npm run start
+```
+
+### Run with real database
 As running database is needed it can be launched through docker compose and automatically will create the tables
 and the owner role
 ```$xslt
@@ -36,15 +43,9 @@ For the first time, execute migrations is needed
 $ DATABASE_URL=postgres://owner:owner@localhost:5432/oaks npm run migrate up
 ```
 
-Run the server
+Run the server 
 ```$xslt
-$ export SERVER_PORT=8082 LOG_LEVEL=info
-export DB_HOST=localhost
-export DB_PORT=5432
-export DB_NAME=oaks
-export DB_USERNAME=owner
-export DB_PASSWORD=owner
-npm run start
+$ LOG_LEVEL=info DB_MEMORY=false DB_HOST=localhost DB_PORT=5432 DB_NAME=oaks DB_USERNAME=owner DB_PASSWORD=owner npm run start
 ```
 
 ## Database Structure
@@ -69,6 +70,7 @@ Tasks
 - npm run build -> Create the build
 - npm run start -> Create the build and starts the server (necessary specify env vars)
 - npm run local -> Launch the server locally including nodemon watcher (takes dev vars)
+- npm run local:memory -> Launch the server locally with memory db including nodemon watcher (takes dev.memory vars)
 - npm run test -> Run the unit tests
 - npm run integration-test -> Run the integration tests
 - npm run all-test -> Run all tests
@@ -99,7 +101,7 @@ Required env vars before launch the service (if no default value present)
 
 NAME:type(default)
 
-- SERVER_PORT: number(8080)
+- SERVER_PORT: number(8082)
 - LOG_LEVEL: {debug, info, warn, error}(warn)
 - SENTRY_DSN: string(''')
 - SENTRY_ENVIRONMENT: string(''')

@@ -1,17 +1,17 @@
 import { HealthCheckError } from '@godaddy/terminus'
-import { PostgresqlClient } from '../../client/postgresql/postgresqlClient'
+import { DatabaseClient } from '../../client/database/databaseClient'
 
 export class ServerHealth {
-  readonly pgClient: PostgresqlClient
+  readonly dbClient: DatabaseClient
 
-  constructor(pgClient: PostgresqlClient) {
-    this.pgClient = pgClient
+  constructor(dbClient: DatabaseClient) {
+    this.dbClient = dbClient
   }
 
   onHealthCheck = async (): Promise<Record<string, string>> => {
     let statusOk = true
     const statusDetails = {}
-    if (this.pgClient.isClosed()) {
+    if (this.dbClient.isClosed()) {
       statusOk = false
       statusDetails['postgres'] = 'KO'
     } else {
@@ -25,6 +25,6 @@ export class ServerHealth {
   }
 
   onShutdown = async (): Promise<Awaited<void>[]> => {
-    return Promise.all([this.pgClient.closeConnection()])
+    return Promise.all([this.dbClient.closeConnection()])
   }
 }

@@ -1,20 +1,19 @@
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 
-import { PostgresqlClient } from '../../client/postgresql/postgresqlClient'
+import { PostgresqlClient } from '../../client/database/postgresqlClient'
 import { LoggerConfig } from '../../configuration/loggerConfig'
 import { DatabaseCleanerPsql } from '../utils/databaseCleanerPsql'
 import { Factory } from '../utils/factory'
-import { ApiError, BadRequest, Internal, NotFound } from '../../model/error'
+import { ApiError, BadRequest } from '../../model/error'
 import { Either } from '../../model/either'
 import { getDatabaseTestConfig } from '../utils/databaseTestConfig'
 import { Phase } from '../../model/phases'
 import { expectLeft, expectRight } from '../../test/utils/expects'
 import { generatePagination } from '../../test/utils/generators/paginationGenerator'
-import { TasksRepository } from '../../repository/tasksRepository'
+import { TasksDbRepository } from '../../repository/tasksDbRepository'
 import { randomUUID } from 'crypto'
 import { Task } from '../../model/tasks'
 import { generateTask } from '../../test/utils/generators/tasksGenerator'
-import { generatePhase } from '../../test/utils/generators/phasesGenerator'
 
 describe('tasksRepository', () => {
   const dbConfig = getDatabaseTestConfig()
@@ -22,7 +21,7 @@ describe('tasksRepository', () => {
   let postgresqlClient: PostgresqlClient
   let dbCleaner
   let factory: Factory
-  let tasksRepository: TasksRepository
+  let tasksRepository: TasksDbRepository
   beforeAll(async () => {
     postgresqlClient = await PostgresqlClient.CreateAsync(
       dbConfig,
@@ -30,7 +29,7 @@ describe('tasksRepository', () => {
     )
     dbCleaner = new DatabaseCleanerPsql(postgresqlClient.client)
     factory = new Factory(postgresqlClient.client)
-    tasksRepository = new TasksRepository(postgresqlClient, loggerConfig)
+    tasksRepository = new TasksDbRepository(postgresqlClient, loggerConfig)
   })
 
   beforeEach(async () => {

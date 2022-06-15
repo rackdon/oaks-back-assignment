@@ -1,5 +1,5 @@
 import { TasksService } from '../../../service/tasks/tasksService'
-import { TasksRepository } from '../../../repository/tasksRepository'
+import { TasksDbRepository } from '../../../repository/tasksDbRepository'
 
 export function tasksServiceMock(args: Record<string, unknown>): TasksService {
   return <TasksService>{
@@ -16,9 +16,9 @@ export function tasksServiceMock(args: Record<string, unknown>): TasksService {
 
 export function tasksRepositoryMock(
   args: Record<string, unknown>
-): TasksRepository {
-  return <TasksRepository>{
-    pgClient: args.pgClient,
+): TasksDbRepository {
+  return <TasksDbRepository>{
+    dbClient: args.pgClient,
     logger: args.logger,
     insertTask: args.insertTask,
     updateTask: args.updateTask,
