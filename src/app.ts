@@ -33,5 +33,6 @@ app.use('/graph', graphRoutes.router)
 app.use(Sentry.Handlers.errorHandler())
 
 server.listen(serverConfig.port, () => {
+  /* eslint-disable no-console */
   console.log(`Server started at port ${serverConfig.port}`)
 })

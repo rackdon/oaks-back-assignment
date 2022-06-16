@@ -1,6 +1,6 @@
 import { PhasesRepository } from './phasesRepository'
 import { Either, EitherI } from '../model/either'
-import { ApiError, Conflict } from '../model/error'
+import { ApiError, Conflict, Forbidden } from '../model/error'
 import {
   Phase,
   PhaseCreation,
@@ -8,6 +8,7 @@ import {
   PhaseProjection,
   PhaseRaw,
   PhasesFilters,
+  PhaseWithTasks,
 } from '../model/phases'
 import { DataWithPages, Pagination } from '../model/pagination'
 import { LoggerConfig } from '../configuration/loggerConfig'
@@ -55,13 +56,13 @@ export class PhasesMemoryRepository implements PhasesRepository {
     id: string,
     phaseEdition: PhaseEdition
   ): Promise<Either<ApiError, PhaseRaw>> {
-    let phase = this.memoryClient.getPhases().find((x) => x.id === id)
-    if (phase) {
-      phase = { ...phase, ...phaseEdition, updatedOn: new Date() }
-      return EitherI.Right(phase)
-    } else {
-      return EitherI.Right(null)
-    }
+    this.memoryClient.getPhases().map((x) => {
+      return x.id === id
+        ? Object.assign(x, { ...x, ...phaseEdition, updatedOn: new Date() })
+        : x
+    })
+    const phase = this.memoryClient.getPhases().find((x) => x.id === id)
+    return EitherI.Right(phase || null)
   }
 
   async getPhases(
@@ -69,7 +70,17 @@ export class PhasesMemoryRepository implements PhasesRepository {
     filters: PhasesFilters,
     pagination: Pagination
   ): Promise<Either<ApiError, DataWithPages<Phase>>> {
-    return EitherI.Right({ data: [], pages: 1 })
+    return EitherI.Right({ data: [this.memoryClient.getPhases()], pages: 1 })
+  }
+
+  private enrichPhase(phase: PhaseRaw): PhaseWithTasks {
+    const tasks: Omit<Task, 'phaseId'>[] = this.memoryClient
+      .getTasks()
+      .filter((x) => x.phaseId === phase.id)
+      .map(({ id, name, done, createdOn, updatedOn }) => {
+        return { id, name, done, createdOn, updatedOn }
+      })
+    return { ...phase, tasks: tasks }
   }
 
   async getPhaseById(
@@ -78,25 +89,26 @@ export class PhasesMemoryRepository implements PhasesRepository {
   ): Promise<Either<ApiError, Phase | null>> {
     const phase = this.memoryClient.getPhases().find((x) => x.id === id)
     if (phase) {
-      if (projection === 'PhaseRaw') {
-        return EitherI.Right(phase)
-      } else {
-        const tasks: Omit<Task, 'phaseId'>[] = this.memoryClient
-          .getTasks()
-          .filter((x) => x.phaseId === id)
-          .map((task: Omit<Task, 'phaseId'>) => {
-            delete task['phaseId']
-            return task
-          })
-        return EitherI.Right({ ...phase, tasks: tasks })
-      }
+      return projection === 'PhaseRaw'
+        ? EitherI.Right(phase)
+        : EitherI.Right(this.enrichPhase(phase))
     } else {
       return EitherI.Right(null)
     }
   }
 
   async deletePhaseById(id: string): Promise<Either<ApiError, number>> {
-    return EitherI.Right(1)
+    if (this.memoryClient.getTasks().some((x) => x.phaseId === id)) {
+      return EitherI.Left(new Forbidden())
+    } else {
+      const index = this.memoryClient.getPhases().findIndex((x) => x.id === id)
+      if (index !== -1) {
+        this.memoryClient.getPhases().splice(index, 1)
+        return EitherI.Right(1)
+      } else {
+        return EitherI.Right(0)
+      }
+    }
   }
 
   getGraphPhasesResolver() {
