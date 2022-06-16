@@ -260,7 +260,7 @@ describe('Edit task', () => {
     )
   })
   it('try to update the task if done is present and update the task correctly updating also the phase', async () => {
-    const taskEdition: TaskEdition = { done: true }
+    const taskEdition: TaskEdition = { done: true, name: 'foo' }
     const task = generateTask()
     const taskPhase = generatePhase()
     const tasksRepository: TasksDbRepository = tasksRepositoryMock({

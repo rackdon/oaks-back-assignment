@@ -88,6 +88,10 @@ describe('Either with right value', () => {
   it('extractLeft returns left value', async () => {
     expect(eitherRight.extractLeft()).toEqual(null)
   })
+
+  it('getOrThrow returns right value if present', async () => {
+    expect(eitherRight.getOrThrow()).toEqual(1)
+  })
 })
 
 describe('Either catch', () => {

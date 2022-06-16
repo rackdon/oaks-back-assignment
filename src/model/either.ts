@@ -127,6 +127,14 @@ export class EitherI<A, B> {
   extractLeft(): A {
     return this.a
   }
+
+  getOrThrow(): B {
+    if (this.isRight()) {
+      return this.extract()
+    } else {
+      throw this.extractLeft()
+    }
+  }
 }
 
 export type Either<A, B> = EitherI<A, any> | EitherI<any, B>

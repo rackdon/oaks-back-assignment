@@ -52,54 +52,48 @@ export class TasksService {
     id: string,
     taskEdition: TaskEdition
   ): Promise<Either<ApiError, Task>> {
-    const currentTask = await this.getTaskById(id)
-    if ('done' in taskEdition) {
-      return (
-        await currentTask.mapA(async (task) => {
-          const currentPhase = await this.phasesRepository.getPhaseById(
-            task.phaseId,
+    try {
+      const currentTask = (await this.getTaskById(id)).getOrThrow()
+      if ('done' in taskEdition) {
+        const currentPhase = (
+          await this.phasesRepository.getPhaseById(
+            currentTask.phaseId,
             'PhaseRaw'
           )
-          const undonePhases = await currentPhase.mapA(async (currentPhase) => {
-            return await this.phasesRepository.getPhases(
-              'PhaseRaw',
-              { createdBefore: currentPhase.createdOn, done: false },
-              toPagination({ pageSize: 1 })
-            )
-          })
-          const updateResult = (
-            await undonePhases.bind().mapA(async (phases) => {
-              return phases.data.length > 0
-                ? EitherI.Left(new BadRequest(['previous phases must be done']))
-                : await this.tasksRepository.updateTask(id, taskEdition)
-            })
-          ).bind()
+        ).getOrThrow()
+        const undonePhases = (
+          await this.phasesRepository.getPhases(
+            'PhaseRaw',
+            { createdBefore: currentPhase.createdOn, done: false },
+            toPagination({ pageSize: 1 })
+          )
+        ).getOrThrow()
+        if (undonePhases.data.length > 0) {
+          return EitherI.Left(new BadRequest(['previous phases must be done']))
+        }
+        const updatedTask = (
+          await this.tasksRepository.updateTask(id, taskEdition)
+        ).getOrThrow()
 
-          if (updateResult.isLeft()) {
-            return updateResult
-          } else {
-            const undoneTasks = await this.tasksRepository.getTasks(
-              { phaseId: task.phaseId, done: false },
-              toPagination({ pageSize: 1 })
-            )
-            return (
-              await undoneTasks.mapA(async (tasks) => {
-                if (tasks.data.length === 0) {
-                  await this.phasesRepository.updatePhase(task.phaseId, {
-                    done: true,
-                  })
-                }
-                return updateResult
-              })
-            ).bind()
-          }
-        })
-      ).bind()
-    } else {
-      const updateResult = await currentTask.mapA(() => {
+        // TODO From this point database get or updates could fail and could not update the associated phase if should be done.
+        // TODO One solution could be manage the errors with mapLeft and make a rollback but it depends on business needs
+        const undoneTasks = (
+          await this.tasksRepository.getTasks(
+            { phaseId: currentTask.phaseId, done: false },
+            toPagination({ pageSize: 1 })
+          )
+        ).extract()
+        if (undoneTasks.data.length === 0) {
+          await this.phasesRepository.updatePhase(currentTask.phaseId, {
+            done: true,
+          })
+        }
+        return EitherI.Right(updatedTask)
+      } else {
         return this.tasksRepository.updateTask(id, taskEdition)
-      })
-      return updateResult.bind()
+      }
+    } catch (e) {
+      return EitherI.Left(e)
     }
   }
 
