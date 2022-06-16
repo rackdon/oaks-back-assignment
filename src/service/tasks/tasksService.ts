@@ -36,11 +36,14 @@ export class TasksService {
       'PhaseRaw'
     )
     const result = await relatedPhase.mapA(async (phase) => {
-      return phase
-        ? phase.done
-          ? EitherI.Left(new BadRequest(['related phase is already done']))
-          : await this.tasksRepository.insertTask(taskCreation)
-        : EitherI.Left(new BadRequest(['related phase does not exist']))
+      if (phase) {
+        if (phase.done) {
+          await this.phasesRepository.updatePhase(phase.id, { done: false })
+        }
+        return await this.tasksRepository.insertTask(taskCreation)
+      } else {
+        return EitherI.Left(new BadRequest(['related phase does not exist']))
+      }
     })
     return result.bind()
   }

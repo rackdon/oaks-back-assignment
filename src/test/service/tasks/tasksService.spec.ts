@@ -49,14 +49,23 @@ describe('Create task', () => {
     )
   })
 
-  it('returns bad request if phase does not exist', async () => {
+  it('creates the task correctly and update the phase as done false if already done', async () => {
     const taskCreation: TaskCreation = generateTaskCreation()
+    const phase: Phase = generatePhase(undefined, undefined, true)
+    const task: Task = generateTask()
     const phasesRepository: PhasesDbRepository = phasesRepositoryMock({
       getPhaseById: jest.fn().mockImplementation(() => {
-        return EitherI.Right(null)
+        return EitherI.Right(phase)
+      }),
+      updatePhase: jest.fn().mockImplementation(() => {
+        return EitherI.Right(phase)
       }),
     })
-    const tasksRepository: TasksDbRepository = tasksRepositoryMock({})
+    const tasksRepository: TasksDbRepository = tasksRepositoryMock({
+      insertTask: jest.fn().mockImplementation(() => {
+        return EitherI.Right(task)
+      }),
+    })
     const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
@@ -65,16 +74,19 @@ describe('Create task', () => {
     )
     const result = await service.createTask(taskCreation)
 
-    expectLeft(result, (x) => x.constructor).toEqual(BadRequest)
+    expectRight(result).toEqual(task)
+    expect(tasksRepository.insertTask).toBeCalledWith(taskCreation)
     expect(phasesRepository.getPhaseById).toBeCalledWith(
       taskCreation.phaseId,
       'PhaseRaw'
     )
+    expect(phasesRepository.updatePhase).toBeCalledWith(phase.id, {
+      done: false,
+    })
   })
 
-  it('returns bad request if phase is already done', async () => {
+  it('returns bad request if phase does not exist', async () => {
     const taskCreation: TaskCreation = generateTaskCreation()
-    const phase = generatePhase(undefined, undefined, true)
     const phasesRepository: PhasesDbRepository = phasesRepositoryMock({
       getPhaseById: jest.fn().mockImplementation(() => {
         return EitherI.Right(null)
