@@ -1,6 +1,12 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator'
+import {
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator'
 import { PhaseEdition } from '../../../model/phases'
 
 export class PhasesEditionValidator {
@@ -9,6 +15,10 @@ export class PhasesEditionValidator {
   @IsNotEmpty()
   name!: string
 
+  @IsOptional()
+  @IsEnum([true], { message: 'done can only be true' })
+  @IsBoolean()
+  done!: boolean
   private constructor(obj: Record<string, any>) {
     Object.assign(this, obj)
   }
@@ -16,7 +26,7 @@ export class PhasesEditionValidator {
   static ValidationInstance(
     obj: Record<string, any>
   ): [PhasesEditionValidator, PhasesEditionValidator] {
-    const phaseBaseEdition: PhaseEdition = { name: '' }
+    const phaseBaseEdition: PhaseEdition = { name: '', done: true }
     const baseInstance = new PhasesEditionValidator(phaseBaseEdition)
     const instance = new PhasesEditionValidator(obj)
     return [instance, baseInstance]

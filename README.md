@@ -196,6 +196,7 @@ body without mandatory fields
 ## Current improvements
 - Allow to delete tasks
 - Allow to delete phases if it doesn't have related tasks
+- Allow to update phase if all tasks related are done (the status done could be false if task not done is deleted)
 - Allow to update phase and task name
  
 ## Future improvements

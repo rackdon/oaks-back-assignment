@@ -52,30 +52,51 @@ export class TasksService {
     id: string,
     taskEdition: TaskEdition
   ): Promise<Either<ApiError, Task>> {
-    const taskResult = await this.getTaskById(id)
+    const currentTask = await this.getTaskById(id)
     if ('done' in taskEdition) {
-      const updateResult = await taskResult.mapA(async (task) => {
-        const currentPhase = await this.phasesRepository.getPhaseById(
-          task.phaseId,
-          'PhaseRaw'
-        )
-        const previousPhases = await currentPhase.mapA(async (currentPhase) => {
-          return await this.phasesRepository.getPhases(
-            'PhaseRaw',
-            { createdBefore: currentPhase.createdOn },
-            toPagination({})
+      return (
+        await currentTask.mapA(async (task) => {
+          const currentPhase = await this.phasesRepository.getPhaseById(
+            task.phaseId,
+            'PhaseRaw'
           )
+          const undonePhases = await currentPhase.mapA(async (currentPhase) => {
+            return await this.phasesRepository.getPhases(
+              'PhaseRaw',
+              { createdBefore: currentPhase.createdOn, done: false },
+              toPagination({ pageSize: 1 })
+            )
+          })
+          const updateResult = (
+            await undonePhases.bind().mapA(async (phases) => {
+              return phases.data.length > 0
+                ? EitherI.Left(new BadRequest(['previous phases must be done']))
+                : await this.tasksRepository.updateTask(id, taskEdition)
+            })
+          ).bind()
+
+          if (updateResult.isLeft()) {
+            return updateResult
+          } else {
+            const undoneTasks = await this.tasksRepository.getTasks(
+              { phaseId: task.phaseId, done: false },
+              toPagination({ pageSize: 1 })
+            )
+            return (
+              await undoneTasks.mapA(async (tasks) => {
+                if (tasks.data.length === 0) {
+                  await this.phasesRepository.updatePhase(task.phaseId, {
+                    done: true,
+                  })
+                }
+                return updateResult
+              })
+            ).bind()
+          }
         })
-        const finalResult = await previousPhases.bind().mapA(async (phases) => {
-          return phases.data.some((x) => !x.done)
-            ? EitherI.Left(new BadRequest(['previous phases must be done']))
-            : await this.tasksRepository.updateTask(id, taskEdition)
-        })
-        return finalResult.bind()
-      })
-      return updateResult.bind()
+      ).bind()
     } else {
-      const updateResult = await taskResult.mapA(() => {
+      const updateResult = await currentTask.mapA(() => {
         return this.tasksRepository.updateTask(id, taskEdition)
       })
       return updateResult.bind()
