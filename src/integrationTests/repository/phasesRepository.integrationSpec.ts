@@ -18,7 +18,7 @@ import { randomUUID } from 'crypto'
 
 describe('phasesRepository', () => {
   const dbConfig = getDatabaseTestConfig()
-  const loggerConfig = new LoggerConfig()
+  const loggerConfig = new LoggerConfig().create()
   let postgresqlClient: PostgresqlClient
   let dbCleaner
   let factory: Factory

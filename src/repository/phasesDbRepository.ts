@@ -2,7 +2,6 @@
 
 import winston from 'winston'
 import { PostgresqlClient } from '../client/database/postgresqlClient'
-import { LoggerConfig } from '../configuration/loggerConfig'
 import { Op, Sequelize } from 'sequelize'
 import { manageDbErrors } from './errors'
 import { ApiError } from '../model/error'
@@ -19,14 +18,15 @@ import { DataWithPages, Pagination } from '../model/pagination'
 import { getPages, getPaginationQuery } from './pagination'
 import { resolver } from 'graphql-sequelize'
 import { PhasesRepository } from './phasesRepository'
+import { Logger } from '../service/server/logger'
 
 export class PhasesDbRepository implements PhasesRepository {
-  readonly logger: winston.Logger
+  readonly logger: Logger
   readonly dbClient: Sequelize
 
-  constructor(pgClient: PostgresqlClient, loggerConfig: LoggerConfig) {
+  constructor(pgClient: PostgresqlClient, loggerConfig: winston.Logger) {
     this.dbClient = pgClient.client
-    this.logger = loggerConfig.create(PhasesDbRepository.name)
+    this.logger = new Logger(PhasesDbRepository.name, loggerConfig)
   }
 
   async insertPhase({

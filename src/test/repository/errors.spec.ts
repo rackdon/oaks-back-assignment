@@ -1,9 +1,10 @@
 import { BadRequest, Conflict, Internal } from '../../model/error'
 import { LoggerConfig } from '../../configuration/loggerConfig'
 import { manageDbErrors } from '../../repository/errors'
+import { Logger } from '../../service/server/logger'
 
 describe('Manage db errors', () => {
-  const logger = new LoggerConfig().create('DB')
+  const logger = new Logger('DB', new LoggerConfig().create())
 
   it('returns conflict when SequelizeUniqueConstraintError', async () => {
     const error = {

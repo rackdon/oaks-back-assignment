@@ -18,15 +18,15 @@ import {
   NotFound,
 } from '../model/error'
 import winston from 'winston'
-import { LoggerConfig } from '../configuration/loggerConfig'
 import { GraphQLUUID } from 'graphql-scalars'
 import { TaskCreation } from '../model/tasks'
 import { dateScalarType, getPhaseType, getTaskType } from '../model/graphTypes'
+import { Logger } from '../service/server/logger'
 
 export class ApiGraphController {
   readonly phasesService: PhasesService
   readonly tasksService: TasksService
-  readonly logger: winston.Logger
+  readonly logger: Logger
 
   private readonly phaseType
   private readonly taskType
@@ -34,11 +34,11 @@ export class ApiGraphController {
   constructor(
     phasesService: PhasesService,
     tasksService: TasksService,
-    loggerConfig: LoggerConfig
+    loggerConfig: winston.Logger
   ) {
     this.phasesService = phasesService
     this.tasksService = tasksService
-    this.logger = loggerConfig.create(ApiGraphController.name)
+    this.logger = new Logger(ApiGraphController.name, loggerConfig)
     this.taskType = getTaskType('Task', {
       phase: {
         type: getPhaseType('BasePhase'),

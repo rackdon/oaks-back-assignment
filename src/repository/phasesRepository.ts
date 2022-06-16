@@ -9,11 +9,11 @@ import {
 import { ApiError } from '../model/error'
 import { Either } from '../model/either'
 import { DataWithPages, Pagination } from '../model/pagination'
-import winston from 'winston'
 import { Sequelize } from 'sequelize'
+import { Logger } from '../service/server/logger'
 
 export interface PhasesRepository {
-  logger: winston.Logger
+  logger: Logger
   dbClient: Sequelize
   insertPhase(phaseCreation: PhaseCreation): Promise<Either<ApiError, PhaseRaw>>
   updatePhase(

@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize'
-import winston from 'winston'
+import { Logger } from '../../service/server/logger'
 
 export interface DatabaseClient {
   client: Sequelize
-  logger: winston.Logger
+  logger: Logger
   isClosed(): boolean
   closeConnection(): Promise<void>
 }

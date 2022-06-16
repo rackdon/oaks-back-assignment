@@ -16,7 +16,7 @@ import { TasksController } from '../../../controller/tasks/tasksController'
 import { randomUUID } from 'crypto'
 
 describe('Create task', () => {
-  const loggerConfig = new LoggerConfig()
+  const loggerConfig = new LoggerConfig().create()
   const taskCreation: TaskCreation = generateTaskCreation()
   it('returns 201 with the task', async () => {
     const createdTask: Task = generateTask()
@@ -76,7 +76,7 @@ describe('Create task', () => {
 })
 
 describe('Edit task', () => {
-  const loggerConfig = new LoggerConfig()
+  const loggerConfig = new LoggerConfig().create()
   const task: Task = generateTask()
   const taskEdition: TaskEdition = generateTaskEdition()
   it('returns 200 with the updated task', async () => {
@@ -174,7 +174,7 @@ describe('Edit task', () => {
 })
 
 describe('Get task by id', () => {
-  const loggerConfig = new LoggerConfig()
+  const loggerConfig = new LoggerConfig().create()
   const taskId = randomUUID()
   it('returns 200 with task', async () => {
     const task = generateTask()
@@ -234,7 +234,7 @@ describe('Get task by id', () => {
 })
 
 describe('Delete task by id', () => {
-  const loggerConfig = new LoggerConfig()
+  const loggerConfig = new LoggerConfig().create()
   const taskId = randomUUID()
   it('returns 204', async () => {
     const tasksService: TasksService = tasksServiceMock({

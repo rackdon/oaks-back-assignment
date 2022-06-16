@@ -4,7 +4,7 @@ import { ServerConfig } from '../configuration/serverConfig'
 import { PostgresqlConfig } from '../configuration/postgresqlConfig'
 
 const sentryConfig = new SentryConfig()
-const loggerConfig = new LoggerConfig(null, sentryConfig)
+const loggerConfig = new LoggerConfig(null, sentryConfig).create()
 const serverConfig = new ServerConfig()
 const postgresqlConfig = new PostgresqlConfig()
 

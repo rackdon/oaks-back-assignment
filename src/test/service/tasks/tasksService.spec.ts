@@ -19,6 +19,7 @@ import { phasesRepositoryMock } from '../../mocks/phases/phasesMocks'
 import { generatePhase } from '../../utils/generators/phasesGenerator'
 
 describe('Create task', () => {
+  const loggerConfig = new LoggerConfig().create()
   it('creates the task correctly', async () => {
     const taskCreation: TaskCreation = generateTaskCreation()
     const phase: Phase = generatePhase(undefined, undefined, false)
@@ -33,7 +34,6 @@ describe('Create task', () => {
         return EitherI.Right(task)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
       phasesRepository,
@@ -66,7 +66,6 @@ describe('Create task', () => {
         return EitherI.Right(task)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
       phasesRepository,
@@ -93,7 +92,6 @@ describe('Create task', () => {
       }),
     })
     const tasksRepository: TasksDbRepository = tasksRepositoryMock({})
-    const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
       phasesRepository,
@@ -110,8 +108,8 @@ describe('Create task', () => {
 })
 
 describe('Edit task', () => {
+  const loggerConfig = new LoggerConfig().create()
   const phasesRepository: PhasesDbRepository = phasesRepositoryMock({})
-  const loggerConfig = new LoggerConfig()
   it('updates the task directly if done is no present and return updated task', async () => {
     const taskEdition: TaskEdition = { name: 'asdf' }
     const task = generateTask()
@@ -315,6 +313,7 @@ describe('Edit task', () => {
 })
 
 describe('Get tasks', () => {
+  const loggerConfig = new LoggerConfig().create()
   const phasesRepository: PhasesDbRepository = phasesRepositoryMock({})
   it('returns repository response', async () => {
     const taskData: Task = generateTask()
@@ -332,7 +331,6 @@ describe('Get tasks', () => {
         return EitherI.Right(response)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
       phasesRepository,
@@ -349,6 +347,7 @@ describe('Get tasks', () => {
 })
 
 describe('Get task by id', () => {
+  const loggerConfig = new LoggerConfig().create()
   const phasesRepository: PhasesDbRepository = phasesRepositoryMock({})
   it('returns task if exists', async () => {
     const task = generateTask()
@@ -357,7 +356,6 @@ describe('Get task by id', () => {
         return EitherI.Right(task)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
       phasesRepository,
@@ -375,7 +373,6 @@ describe('Get task by id', () => {
         return EitherI.Right(null)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
       phasesRepository,
@@ -394,7 +391,6 @@ describe('Get task by id', () => {
         return EitherI.Left(new Internal())
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
       phasesRepository,
@@ -408,6 +404,7 @@ describe('Get task by id', () => {
 })
 
 describe('Delete task by id', () => {
+  const loggerConfig = new LoggerConfig().create()
   const phasesRepository: PhasesDbRepository = phasesRepositoryMock({})
   it('returns repository response', async () => {
     const id = 'id'
@@ -416,7 +413,6 @@ describe('Delete task by id', () => {
         return EitherI.Right(1)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new TasksService(
       tasksRepository,
       phasesRepository,

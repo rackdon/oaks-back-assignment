@@ -22,6 +22,7 @@ import { BadRequest, Internal, NotFound } from '../../../model/error'
 import { generateTask } from '../../utils/generators/tasksGenerator'
 
 describe('Create phase', () => {
+  const loggerConfig = new LoggerConfig().create()
   it('returns repository response', async () => {
     const phaseCreation: PhaseCreation = generatePhaseCreation()
     const phase: Phase = generatePhase()
@@ -30,7 +31,6 @@ describe('Create phase', () => {
         return EitherI.Right(phase)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.createPhase(phaseCreation)
 
@@ -40,6 +40,7 @@ describe('Create phase', () => {
 })
 
 describe('Edit phase', () => {
+  const loggerConfig = new LoggerConfig().create()
   it('updates the phase directly if done is no present and return updated phase', async () => {
     const phaseEdition: PhaseEdition = { name: 'asdf' }
     const phase = generatePhase()
@@ -48,7 +49,6 @@ describe('Edit phase', () => {
         return EitherI.Right(phase)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.editPhase(phase.id, phaseEdition)
 
@@ -64,7 +64,6 @@ describe('Edit phase', () => {
         return EitherI.Right(null)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.editPhase(phase.id, phaseEdition)
 
@@ -80,7 +79,6 @@ describe('Edit phase', () => {
         return EitherI.Left(new NotFound())
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.editPhase(phase.id, phaseEdition)
 
@@ -100,7 +98,6 @@ describe('Edit phase', () => {
         return EitherI.Right({ ...generatePhase(), tasks: [task] })
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.editPhase(phase.id, phaseEdition)
 
@@ -124,7 +121,6 @@ describe('Edit phase', () => {
         return EitherI.Right({ data: [phase] })
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.editPhase(phase.id, phaseEdition)
 
@@ -156,7 +152,6 @@ describe('Edit phase', () => {
         return EitherI.Left(new Internal())
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.editPhase(phase.id, phaseEdition)
 
@@ -189,7 +184,6 @@ describe('Edit phase', () => {
         return EitherI.Right(phase)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.editPhase(phase.id, phaseEdition)
 
@@ -208,6 +202,7 @@ describe('Edit phase', () => {
 })
 
 describe('Get phases', () => {
+  const loggerConfig = new LoggerConfig().create()
   it('returns repository response', async () => {
     const phaseData: Phase = generatePhase()
     const response: DataWithPages<Phase> = { data: [phaseData], pages: 1 }
@@ -224,7 +219,6 @@ describe('Get phases', () => {
         return EitherI.Right(response)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.getPhases(filters)
 
@@ -238,6 +232,7 @@ describe('Get phases', () => {
 })
 
 describe('Get phase by id', () => {
+  const loggerConfig = new LoggerConfig().create()
   it('returns phase if exists', async () => {
     const phase = generatePhase()
     const projection: PhaseProjection = 'PhaseRaw'
@@ -246,7 +241,6 @@ describe('Get phase by id', () => {
         return EitherI.Right(phase)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.getPhaseById(phase.id, { projection })
 
@@ -262,7 +256,6 @@ describe('Get phase by id', () => {
         return EitherI.Right(null)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.getPhaseById(id, { projection })
 
@@ -278,7 +271,6 @@ describe('Get phase by id', () => {
         return EitherI.Left(new Internal())
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.getPhaseById(id, { projection })
 
@@ -288,6 +280,7 @@ describe('Get phase by id', () => {
 })
 
 describe('Delete phase by id', () => {
+  const loggerConfig = new LoggerConfig().create()
   it('returns repository response', async () => {
     const id = 'id'
     const phasesRepository: PhasesDbRepository = phasesRepositoryMock({
@@ -295,7 +288,6 @@ describe('Delete phase by id', () => {
         return EitherI.Right(1)
       }),
     })
-    const loggerConfig = new LoggerConfig()
     const service = new PhasesService(phasesRepository, loggerConfig)
     const result = await service.deletePhaseById(id)
 

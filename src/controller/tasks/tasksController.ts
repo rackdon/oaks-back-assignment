@@ -1,7 +1,6 @@
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
 
 import winston from 'winston'
-import { LoggerConfig } from '../../configuration/loggerConfig'
 import {
   ApiError,
   BadRequest,
@@ -12,14 +11,15 @@ import {
 import { TasksService } from '../../service/tasks/tasksService'
 import { Task } from '../../model/tasks'
 import { DataWithPages } from '../../model/pagination'
+import { Logger } from '../../service/server/logger'
 
 export class TasksController {
   readonly tasksService: TasksService
-  readonly logger: winston.Logger
+  readonly logger: Logger
 
-  constructor(tasksService: TasksService, loggerConfig: LoggerConfig) {
+  constructor(tasksService: TasksService, loggerConfig: winston.Logger) {
     this.tasksService = tasksService
-    this.logger = loggerConfig.create(TasksController.name)
+    this.logger = new Logger(TasksController.name, loggerConfig)
   }
 
   createTask = async (req, res): Promise<void> => {

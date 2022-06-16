@@ -2,7 +2,6 @@
 
 import winston from 'winston'
 import { PostgresqlClient } from '../client/database/postgresqlClient'
-import { LoggerConfig } from '../configuration/loggerConfig'
 import { Sequelize } from 'sequelize'
 import { manageDbErrors } from './errors'
 import { ApiError } from '../model/error'
@@ -12,14 +11,15 @@ import { DataWithPages, Pagination } from '../model/pagination'
 import { getPages, getPaginationQuery } from './pagination'
 import { resolver } from 'graphql-sequelize'
 import { TasksRepository } from './tasksRepository'
+import { Logger } from '../service/server/logger'
 
 export class TasksDbRepository implements TasksRepository {
-  readonly logger: winston.Logger
+  readonly logger: Logger
   readonly dbClient: Sequelize
 
-  constructor(pgClient: PostgresqlClient, loggerConfig: LoggerConfig) {
+  constructor(pgClient: PostgresqlClient, loggerConfig: winston.Logger) {
     this.dbClient = pgClient.client
-    this.logger = loggerConfig.create(TasksDbRepository.name)
+    this.logger = new Logger(TasksDbRepository.name, loggerConfig)
   }
 
   async insertTask({

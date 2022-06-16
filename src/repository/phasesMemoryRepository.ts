@@ -17,16 +17,17 @@ import winston from 'winston'
 import { Sequelize } from 'sequelize'
 import { randomUUID } from 'crypto'
 import { Task } from '../model/tasks'
+import { Logger } from '../service/server/logger'
 
 export class PhasesMemoryRepository implements PhasesRepository {
-  readonly logger: winston.Logger
+  readonly logger: Logger
   readonly dbClient: Sequelize
   readonly memoryClient: MemoryClient
 
-  constructor(memoryClient: MemoryClient, loggerConfig: LoggerConfig) {
+  constructor(memoryClient: MemoryClient, loggerConfig: winston.Logger) {
     this.memoryClient = memoryClient
     this.dbClient = memoryClient.client
-    this.logger = loggerConfig.create(PhasesMemoryRepository.name)
+    this.logger = new Logger(PhasesMemoryRepository.name, loggerConfig)
   }
 
   async insertPhase(

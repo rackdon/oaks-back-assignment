@@ -1,18 +1,18 @@
-import { LoggerConfig } from '../../configuration/loggerConfig'
 import winston from 'winston'
 import { PostgresqlConfig } from '../../configuration/postgresqlConfig'
 import { Sequelize } from 'sequelize'
 import { EntitiesInitializer } from '../../repository/entity/entitiesInitializer'
 import { types } from 'pg'
 import { DatabaseClient } from './databaseClient'
+import { Logger } from '../../service/server/logger'
 
 export class PostgresqlClient implements DatabaseClient {
   readonly client: Sequelize
-  readonly logger: winston.Logger
+  readonly logger: Logger
   private closedConnection = true
 
-  private constructor(config: PostgresqlConfig, loggerConfig: LoggerConfig) {
-    const dbLogger = config.log ? loggerConfig.create('DB') : null
+  private constructor(config: PostgresqlConfig, loggerConfig: winston.Logger) {
+    const dbLogger = config.log ? new Logger('DB', loggerConfig) : null
     this.client = new Sequelize({
       dialect: 'postgres',
       host: config.host,
@@ -20,13 +20,13 @@ export class PostgresqlClient implements DatabaseClient {
       database: config.name,
       username: config.username,
       password: config.password,
-      logging: config.log ? (...msg) => dbLogger!!.debug(msg) : false,
+      logging: config.log ? (...msg) => dbLogger!!.debug(msg.join()) : false,
     })
-    this.logger = loggerConfig.create(PostgresqlClient.name)
+    this.logger = new Logger(PostgresqlClient.name, loggerConfig)
   }
   static Create(
     config: PostgresqlConfig,
-    loggerConfig: LoggerConfig
+    loggerConfig: winston.Logger
   ): PostgresqlClient {
     const instance = new PostgresqlClient(config, loggerConfig)
 
@@ -41,7 +41,7 @@ export class PostgresqlClient implements DatabaseClient {
 
   static async CreateAsync(
     config: PostgresqlConfig,
-    loggerConfig: LoggerConfig
+    loggerConfig: winston.Logger
   ): Promise<PostgresqlClient> {
     const instance = new PostgresqlClient(config, loggerConfig)
 

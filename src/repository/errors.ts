@@ -5,9 +5,9 @@ import {
   Forbidden,
   Internal,
 } from '../model/error'
-import winston from 'winston'
+import { Logger } from '../service/server/logger'
 
-export function manageDbErrors(e, logger: winston.Logger): ApiError {
+export function manageDbErrors(e, logger: Logger): ApiError {
   switch (e.name) {
     case 'SequelizeUniqueConstraintError': {
       return new Conflict(e.errors.map((x) => x.message))

@@ -36,14 +36,13 @@ export class LoggerConfig {
     this.sentryConfig = sentryConfig
   }
 
-  create(service: string, format?: winston.Logform.Format): winston.Logger {
+  create(format?: winston.Logform.Format): winston.Logger {
     const defaultFormat = printf(({ level, message }) => {
-      return `${level} [${service}]: ${message}`
+      return `${level} ${message}`
     })
     const logger = winston.createLogger({
       level: this.logLevel,
       format: format || defaultFormat,
-      defaultMeta: { service: service },
       transports: [new transports.Console()],
       exceptionHandlers: [new transports.Console()],
     })

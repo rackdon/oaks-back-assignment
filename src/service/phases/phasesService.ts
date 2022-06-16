@@ -1,5 +1,4 @@
 import winston from 'winston'
-import { LoggerConfig } from '../../configuration/loggerConfig'
 import { Either, EitherI } from '../../model/either'
 import { ApiError, BadRequest, NotFound } from '../../model/error'
 import {
@@ -13,14 +12,18 @@ import {
 } from '../../model/phases'
 import { DataWithPages, toPagination } from '../../model/pagination'
 import { PhasesRepository } from '../../repository/phasesRepository'
+import { Logger } from '../server/logger'
 
 export class PhasesService {
-  readonly logger: winston.Logger
+  readonly logger: Logger
   readonly phasesRepository: PhasesRepository
   readonly defaultPhase: PhaseProjection = 'PhaseRaw'
 
-  constructor(phasesRepository: PhasesRepository, loggerConfig: LoggerConfig) {
-    this.logger = loggerConfig.create(PhasesService.name)
+  constructor(
+    phasesRepository: PhasesRepository,
+    loggerConfig: winston.Logger
+  ) {
+    this.logger = new Logger(PhasesService.name, loggerConfig)
     this.phasesRepository = phasesRepository
   }
 

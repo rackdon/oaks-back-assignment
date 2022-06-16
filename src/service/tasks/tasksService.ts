@@ -1,5 +1,4 @@
 import winston from 'winston'
-import { LoggerConfig } from '../../configuration/loggerConfig'
 import { Either, EitherI } from '../../model/either'
 import { ApiError, BadRequest, NotFound } from '../../model/error'
 import {
@@ -12,18 +11,19 @@ import {
 import { DataWithPages, toPagination } from '../../model/pagination'
 import { TasksRepository } from '../../repository/tasksRepository'
 import { PhasesRepository } from '../../repository/phasesRepository'
+import { Logger } from '../server/logger'
 
 export class TasksService {
-  readonly logger: winston.Logger
+  readonly logger: Logger
   readonly tasksRepository: TasksRepository
   readonly phasesRepository: PhasesRepository
 
   constructor(
     tasksRepository: TasksRepository,
     phasesRepository: PhasesRepository,
-    loggerConfig: LoggerConfig
+    loggerConfig: winston.Logger
   ) {
-    this.logger = loggerConfig.create(TasksService.name)
+    this.logger = new Logger(TasksService.name, loggerConfig)
     this.tasksRepository = tasksRepository
     this.phasesRepository = phasesRepository
   }

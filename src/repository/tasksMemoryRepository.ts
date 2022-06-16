@@ -8,16 +8,17 @@ import { ApiError } from '../model/error'
 import { Task, TaskCreation, TaskEdition, TasksFilters } from '../model/tasks'
 import { DataWithPages, Pagination } from '../model/pagination'
 import { randomUUID } from 'crypto'
+import { Logger } from '../service/server/logger'
 
 export class TasksMemoryRepository implements TasksRepository {
   dbClient: Sequelize
-  logger: winston.Logger
+  logger: Logger
   readonly memoryClient: MemoryClient
 
-  constructor(memoryClient: MemoryClient, loggerConfig: LoggerConfig) {
+  constructor(memoryClient: MemoryClient, loggerConfig: winston.Logger) {
     this.memoryClient = memoryClient
     this.dbClient = memoryClient.client
-    this.logger = loggerConfig.create(TasksMemoryRepository.name)
+    this.logger = new Logger(TasksMemoryRepository.name, loggerConfig)
   }
 
   async insertTask(

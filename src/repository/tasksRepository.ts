@@ -1,12 +1,12 @@
 import { ApiError } from '../model/error'
 import { Either } from '../model/either'
 import { DataWithPages, Pagination } from '../model/pagination'
-import winston from 'winston'
 import { Sequelize } from 'sequelize'
 import { Task, TaskCreation, TaskEdition, TasksFilters } from '../model/tasks'
+import { Logger } from '../service/server/logger'
 
 export interface TasksRepository {
-  logger: winston.Logger
+  logger: Logger
   dbClient: Sequelize
   insertTask(taskCreation: TaskCreation): Promise<Either<ApiError, Task>>
   updateTask(

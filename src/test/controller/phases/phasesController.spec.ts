@@ -23,7 +23,7 @@ import { DataWithPages } from '../../../model/pagination'
 import { randomUUID } from 'crypto'
 
 describe('Create phase', () => {
-  const loggerConfig = new LoggerConfig()
+  const loggerConfig = new LoggerConfig().create()
   const phaseCreation: PhaseCreation = generatePhaseCreation()
   it('returns 201 with the phase', async () => {
     const createdPhase: Phase = generatePhase()
@@ -83,7 +83,7 @@ describe('Create phase', () => {
 })
 
 describe('Edit phase', () => {
-  const loggerConfig = new LoggerConfig()
+  const loggerConfig = new LoggerConfig().create()
   const phase: Phase = generatePhase()
   const phaseEdition: PhaseEdition = generatePhaseEdition()
   it('returns 200 with the updated phase', async () => {
@@ -181,7 +181,7 @@ describe('Edit phase', () => {
 })
 
 describe('Get phases', () => {
-  const loggerConfig = new LoggerConfig()
+  const loggerConfig = new LoggerConfig().create()
   const phaseData: Phase = generatePhase()
   const phases: DataWithPages<Phase> = { data: [phaseData], pages: 1 }
   const query = { pageSize: 5 }
@@ -233,7 +233,7 @@ describe('Get phases', () => {
 })
 
 describe('Get phase by id', () => {
-  const loggerConfig = new LoggerConfig()
+  const loggerConfig = new LoggerConfig().create()
   const phaseId = randomUUID()
   it('returns 200 with the phase', async () => {
     const phase = generatePhase()
@@ -295,7 +295,7 @@ describe('Get phase by id', () => {
 })
 
 describe('Delete phases by id', () => {
-  const loggerConfig = new LoggerConfig()
+  const loggerConfig = new LoggerConfig().create()
   const phaseId = randomUUID()
   it('returns 204', async () => {
     const phasesService: PhasesService = phasesServiceMock({

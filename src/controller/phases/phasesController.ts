@@ -1,7 +1,6 @@
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
 
 import winston from 'winston'
-import { LoggerConfig } from '../../configuration/loggerConfig'
 import {
   ApiError,
   BadRequest,
@@ -13,14 +12,15 @@ import {
 import { PhasesService } from '../../service/phases/phasesService'
 import { Phase } from '../../model/phases'
 import { DataWithPages } from '../../model/pagination'
+import { Logger } from '../../service/server/logger'
 
 export class PhasesController {
   readonly phasesService: PhasesService
-  readonly logger: winston.Logger
+  readonly logger: Logger
 
-  constructor(phasesService: PhasesService, loggerConfig: LoggerConfig) {
+  constructor(phasesService: PhasesService, loggerConfig: winston.Logger) {
     this.phasesService = phasesService
-    this.logger = loggerConfig.create(PhasesController.name)
+    this.logger = new Logger(PhasesController.name, loggerConfig)
   }
 
   createPhase = async (req, res): Promise<void> => {
