@@ -59,7 +59,7 @@ export class TasksMemoryRepository implements TasksRepository {
   async getTaskById(id: string): Promise<Either<ApiError, Task | null>> {
     const task = this.memoryClient.getTasks().find((x) => x.id === id)
 
-    return task ? EitherI.Right(task) : EitherI.Right(null)
+    return EitherI.Right(task || null)
   }
 
   async deleteTaskById(id: string): Promise<Either<ApiError, number>> {
