@@ -158,16 +158,9 @@ export class ApiGraphController {
                 description: 'new name of the phase',
                 type: GraphQLString,
               },
-              done: {
-                description: 'new status of the phase',
-                type: GraphQLBoolean,
-              },
             },
             resolve: async (root, args) => {
-              const { id, done } = args
-              if ('done' in args && done === false) {
-                throw new Error('Only true is allowed in done param')
-              }
+              const { id } = args
               delete args.id
               const result = await this.phasesService.editPhase(id, args)
               return result.foldExtract(
