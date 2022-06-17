@@ -158,10 +158,37 @@ export class PhasesMemoryRepository implements PhasesRepository {
   }
 
   getGraphPhasesResolver() {
-    return () => 1
+    /* eslint-disable  @typescript-eslint/no-unused-vars */
+    return (x, args, b, context) => {
+      args.createdBefore = args.createdBefore
+        ? new Date(args.createdBefore)
+        : null
+      args.createdAfter = args.createdAfter ? new Date(args.createdAfter) : null
+      const phases = this.memoryClient.getPhases()
+      switch (context.fieldName) {
+        case 'phases':
+          return phases
+            .filter(this.getFilters(args))
+            .sort(
+              this.getSort(
+                args.order?.split('reverse:').reverse()[0],
+                args.order?.startsWith('reverse:') ? 'DESC' : 'ASC'
+              )
+            )
+            .slice(
+              args.offset,
+              (args.offset || 0) + (args.limit || phases.length)
+            )
+        case 'phase':
+          return phases.filter((x) => x.id === args.id)[0]
+      }
+    }
   }
 
   getGraphPhasesTasks() {
-    return () => 1
+    /* eslint-disable  @typescript-eslint/no-unused-vars */
+    return (phase, a, b, context) => {
+      return this.memoryClient.getTasks().filter((x) => x.phaseId == phase.id)
+    }
   }
 }

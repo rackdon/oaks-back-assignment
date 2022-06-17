@@ -115,10 +115,35 @@ export class TasksMemoryRepository implements TasksRepository {
   }
 
   getGraphTasksResolver() {
-    return () => 1
+    /* eslint-disable  @typescript-eslint/no-unused-vars */
+    return (a, args, b, context) => {
+      const tasks = this.memoryClient.getTasks()
+      switch (context.fieldName) {
+        case 'tasks':
+          return tasks
+            .filter(this.getFilters(args))
+            .sort(
+              this.getSort(
+                args.order?.split('reverse:').reverse()[0],
+                args.order?.startsWith('reverse:') ? 'DESC' : 'ASC'
+              )
+            )
+            .slice(
+              args.offset,
+              (args.offset || 0) + (args.limit || tasks.length)
+            )
+        case 'task':
+          return tasks.filter((x) => x.id === args.id)[0]
+      }
+    }
   }
 
   getGraphTaskPhaseResolver() {
-    return () => 1
+    /* eslint-disable  @typescript-eslint/no-unused-vars */
+    return (task, a, b, context) => {
+      return this.memoryClient
+        .getPhases()
+        .filter((x) => x.id == task.phaseId)[0]
+    }
   }
 }
