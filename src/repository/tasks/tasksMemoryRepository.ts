@@ -76,7 +76,7 @@ export class TasksMemoryRepository implements TasksRepository {
     return (task: Task) => {
       return (
         (filters.name ? task.name === filters.name : true) &&
-        (filters.done ? task.done === filters.done : true) &&
+        (filters.done !== undefined ? task.done === filters.done : true) &&
         (filters.phaseId ? task.phaseId === filters.phaseId : true)
       )
     }

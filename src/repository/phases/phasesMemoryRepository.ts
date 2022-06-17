@@ -96,7 +96,7 @@ export class PhasesMemoryRepository implements PhasesRepository {
     return (phase: PhaseRaw) => {
       return (
         (filters.name ? phase.name === filters.name : true) &&
-        (filters.done ? phase.done === filters.done : true) &&
+        (filters.done !== undefined ? phase.done === filters.done : true) &&
         (filters.createdBefore
           ? phase.createdOn < filters.createdBefore
           : true) &&
