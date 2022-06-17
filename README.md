@@ -208,8 +208,5 @@ body without mandatory fields
       more rows)
     - probably  is better to use no relational db storing everything in the same
       document
-- Allow mark phases as undone (need to take in account no next phases or tasks
-  are already marked as done)
-- Allow mark tasks as undone (need to take in account related phase is not
-  already done)
+- Allow mark tasks as undone (need to mark also phase as undone if it is done)
 
