@@ -1,6 +1,6 @@
 import { PhasesRepository } from './phasesRepository'
-import { Either, EitherI } from '../model/either'
-import { ApiError, Conflict, Forbidden } from '../model/error'
+import { Either, EitherI } from '../../model/either'
+import { ApiError, Conflict, Forbidden } from '../../model/error'
 import {
   Phase,
   PhaseCreation,
@@ -9,15 +9,15 @@ import {
   PhaseRaw,
   PhasesFilters,
   PhaseWithTasks,
-} from '../model/phases'
-import { DataWithPages, Pagination } from '../model/pagination'
-import { LoggerConfig } from '../configuration/loggerConfig'
-import { MemoryClient } from '../client/database/memoryClient'
+} from '../../model/phases'
+import { DataWithPages, Pagination } from '../../model/pagination'
+import { MemoryClient } from '../../client/database/memoryClient'
 import winston from 'winston'
 import { Sequelize } from 'sequelize'
 import { randomUUID } from 'crypto'
-import { Task } from '../model/tasks'
-import { Logger } from '../service/server/logger'
+import { Task } from '../../model/tasks'
+import { Logger } from '../../service/server/logger'
+import { getPages } from '../pagination'
 
 export class PhasesMemoryRepository implements PhasesRepository {
   readonly logger: Logger
@@ -71,7 +71,11 @@ export class PhasesMemoryRepository implements PhasesRepository {
     filters: PhasesFilters,
     pagination: Pagination
   ): Promise<Either<ApiError, DataWithPages<Phase>>> {
-    return EitherI.Right({ data: [this.memoryClient.getPhases()], pages: 1 })
+    const filteredPhases = this.memoryClient.getPhases()
+    return EitherI.Right({
+      data: filteredPhases,
+      pages: getPages(filteredPhases.length, pagination.pageSize),
+    })
   }
 
   private enrichPhase(phase: PhaseRaw): PhaseWithTasks {

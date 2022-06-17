@@ -9,8 +9,8 @@ import {
   toTasksFilters,
 } from '../../model/tasks'
 import { DataWithPages, toPagination } from '../../model/pagination'
-import { TasksRepository } from '../../repository/tasksRepository'
-import { PhasesRepository } from '../../repository/phasesRepository'
+import { TasksRepository } from '../../repository/tasks/tasksRepository'
+import { PhasesRepository } from '../../repository/phases/phasesRepository'
 import { Logger } from '../server/logger'
 
 export class TasksService {

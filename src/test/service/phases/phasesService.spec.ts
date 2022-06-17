@@ -14,7 +14,7 @@ import {
   generatePhase,
   generatePhaseCreation,
 } from '../../utils/generators/phasesGenerator'
-import { PhasesDbRepository } from '../../../repository/phasesDbRepository'
+import { PhasesDbRepository } from '../../../repository/phases/phasesDbRepository'
 import { phasesRepositoryMock } from '../../mocks/phases/phasesMocks'
 import { PhasesService } from '../../../service/phases/phasesService'
 import { DataWithPages, Pagination } from '../../../model/pagination'

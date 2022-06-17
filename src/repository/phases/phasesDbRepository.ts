@@ -1,11 +1,11 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
 import winston from 'winston'
-import { PostgresqlClient } from '../client/database/postgresqlClient'
+import { PostgresqlClient } from '../../client/database/postgresqlClient'
 import { Op, Sequelize } from 'sequelize'
-import { manageDbErrors } from './errors'
-import { ApiError } from '../model/error'
-import { Either, EitherI } from '../model/either'
+import { manageDbErrors } from '../errors'
+import { ApiError } from '../../model/error'
+import { Either, EitherI } from '../../model/either'
 import {
   Phase,
   PhaseCreation,
@@ -13,12 +13,12 @@ import {
   PhaseProjection,
   PhaseRaw,
   PhasesFilters,
-} from '../model/phases'
-import { DataWithPages, Pagination } from '../model/pagination'
-import { getPages, getPaginationQuery } from './pagination'
+} from '../../model/phases'
+import { DataWithPages, Pagination } from '../../model/pagination'
+import { getPages, getPaginationQuery } from '../pagination'
 import { resolver } from 'graphql-sequelize'
 import { PhasesRepository } from './phasesRepository'
-import { Logger } from '../service/server/logger'
+import { Logger } from '../../service/server/logger'
 
 export class PhasesDbRepository implements PhasesRepository {
   readonly logger: Logger

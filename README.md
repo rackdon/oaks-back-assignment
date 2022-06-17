@@ -72,9 +72,9 @@ Tasks
 - npm run local -> Launch the server locally including nodemon watcher (takes dev vars)
 - npm run local:memory -> Launch the server locally with memory db including nodemon watcher (takes dev.memory vars)
 - npm run test -> Run the unit tests
-- npm run integration-test -> Run the integration tests
-- npm run all-test -> Run all tests
-- npm run test:coverage -> Run all tests and calculate coverage
+- npm run integration-test -> Run the integration tests (migrations in oaks_test db needed)
+- npm run all-test -> Run all tests (migrations in oaks_test db needed)
+- npm run test:coverage -> Run all tests and calculate coverage (migrations in oaks_test db needed)
 
 
 ## Migrations

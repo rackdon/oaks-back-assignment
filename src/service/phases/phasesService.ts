@@ -11,7 +11,7 @@ import {
   toPhasesFilters,
 } from '../../model/phases'
 import { DataWithPages, toPagination } from '../../model/pagination'
-import { PhasesRepository } from '../../repository/phasesRepository'
+import { PhasesRepository } from '../../repository/phases/phasesRepository'
 import { Logger } from '../server/logger'
 
 export class PhasesService {

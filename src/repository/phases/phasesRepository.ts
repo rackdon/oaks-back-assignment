@@ -5,12 +5,12 @@ import {
   PhaseProjection,
   PhaseRaw,
   PhasesFilters,
-} from '../model/phases'
-import { ApiError } from '../model/error'
-import { Either } from '../model/either'
-import { DataWithPages, Pagination } from '../model/pagination'
+} from '../../model/phases'
+import { ApiError } from '../../model/error'
+import { Either } from '../../model/either'
+import { DataWithPages, Pagination } from '../../model/pagination'
 import { Sequelize } from 'sequelize'
-import { Logger } from '../service/server/logger'
+import { Logger } from '../../service/server/logger'
 
 export interface PhasesRepository {
   logger: Logger

@@ -1,17 +1,22 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
 import winston from 'winston'
-import { PostgresqlClient } from '../client/database/postgresqlClient'
+import { PostgresqlClient } from '../../client/database/postgresqlClient'
 import { Sequelize } from 'sequelize'
-import { manageDbErrors } from './errors'
-import { ApiError } from '../model/error'
-import { Either, EitherI } from '../model/either'
-import { Task, TaskCreation, TaskEdition, TasksFilters } from '../model/tasks'
-import { DataWithPages, Pagination } from '../model/pagination'
-import { getPages, getPaginationQuery } from './pagination'
+import { manageDbErrors } from '../errors'
+import { ApiError } from '../../model/error'
+import { Either, EitherI } from '../../model/either'
+import {
+  Task,
+  TaskCreation,
+  TaskEdition,
+  TasksFilters,
+} from '../../model/tasks'
+import { DataWithPages, Pagination } from '../../model/pagination'
+import { getPages, getPaginationQuery } from '../pagination'
 import { resolver } from 'graphql-sequelize'
 import { TasksRepository } from './tasksRepository'
-import { Logger } from '../service/server/logger'
+import { Logger } from '../../service/server/logger'
 
 export class TasksDbRepository implements TasksRepository {
   readonly logger: Logger

@@ -8,13 +8,13 @@ import {
   generateTask,
   generateTaskCreation,
 } from '../../utils/generators/tasksGenerator'
-import { TasksDbRepository } from '../../../repository/tasksDbRepository'
+import { TasksDbRepository } from '../../../repository/tasks/tasksDbRepository'
 import { tasksRepositoryMock } from '../../mocks/tasks/tasksMocks'
 import { TasksService } from '../../../service/tasks/tasksService'
 import { Phase, PhasesFilters } from '../../../model/phases'
 import { DataWithPages, Pagination } from '../../../model/pagination'
 import { BadRequest, Internal, NotFound } from '../../../model/error'
-import { PhasesDbRepository } from '../../../repository/phasesDbRepository'
+import { PhasesDbRepository } from '../../../repository/phases/phasesDbRepository'
 import { phasesRepositoryMock } from '../../mocks/phases/phasesMocks'
 import { generatePhase } from '../../utils/generators/phasesGenerator'
 

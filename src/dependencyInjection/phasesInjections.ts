@@ -1,10 +1,10 @@
-import { PhasesDbRepository } from '../repository/phasesDbRepository'
+import { PhasesDbRepository } from '../repository/phases/phasesDbRepository'
 import { dbClient } from './postgresqlInjections'
 import { loggerConfig } from './configInjections'
 import { PhasesService } from '../service/phases/phasesService'
 import { PhasesController } from '../controller/phases/phasesController'
 import { PostgresqlClient } from '../client/database/postgresqlClient'
-import { PhasesMemoryRepository } from '../repository/phasesMemoryRepository'
+import { PhasesMemoryRepository } from '../repository/phases/phasesMemoryRepository'
 import { MemoryClient } from '../client/database/memoryClient'
 
 const phasesRepository =

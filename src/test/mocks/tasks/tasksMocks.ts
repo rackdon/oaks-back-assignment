@@ -1,5 +1,5 @@
 import { TasksService } from '../../../service/tasks/tasksService'
-import { TasksDbRepository } from '../../../repository/tasksDbRepository'
+import { TasksDbRepository } from '../../../repository/tasks/tasksDbRepository'
 
 export function tasksServiceMock(args: Record<string, unknown>): TasksService {
   return <TasksService>{

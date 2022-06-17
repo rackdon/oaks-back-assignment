@@ -1,14 +1,19 @@
 import { TasksRepository } from './tasksRepository'
 import { Sequelize } from 'sequelize'
 import winston from 'winston'
-import { MemoryClient } from '../client/database/memoryClient'
-import { LoggerConfig } from '../configuration/loggerConfig'
-import { Either, EitherI } from '../model/either'
-import { ApiError } from '../model/error'
-import { Task, TaskCreation, TaskEdition, TasksFilters } from '../model/tasks'
-import { DataWithPages, Pagination } from '../model/pagination'
+import { MemoryClient } from '../../client/database/memoryClient'
+import { Either, EitherI } from '../../model/either'
+import { ApiError } from '../../model/error'
+import {
+  Task,
+  TaskCreation,
+  TaskEdition,
+  TasksFilters,
+} from '../../model/tasks'
+import { DataWithPages, Pagination } from '../../model/pagination'
 import { randomUUID } from 'crypto'
-import { Logger } from '../service/server/logger'
+import { Logger } from '../../service/server/logger'
+import { getPages } from '../pagination'
 
 export class TasksMemoryRepository implements TasksRepository {
   dbClient: Sequelize
@@ -54,7 +59,11 @@ export class TasksMemoryRepository implements TasksRepository {
     filters: TasksFilters,
     pagination: Pagination
   ): Promise<Either<ApiError, DataWithPages<Task>>> {
-    return EitherI.Right({ data: [this.memoryClient.getTasks()], pages: 1 })
+    const filteredTasks = this.memoryClient.getTasks()
+    return EitherI.Right({
+      data: filteredTasks,
+      pages: getPages(filteredTasks.length, pagination.pageSize),
+    })
   }
 
   async getTaskById(id: string): Promise<Either<ApiError, Task | null>> {

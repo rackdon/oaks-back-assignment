@@ -1,9 +1,14 @@
-import { ApiError } from '../model/error'
-import { Either } from '../model/either'
-import { DataWithPages, Pagination } from '../model/pagination'
+import { ApiError } from '../../model/error'
+import { Either } from '../../model/either'
+import { DataWithPages, Pagination } from '../../model/pagination'
 import { Sequelize } from 'sequelize'
-import { Task, TaskCreation, TaskEdition, TasksFilters } from '../model/tasks'
-import { Logger } from '../service/server/logger'
+import {
+  Task,
+  TaskCreation,
+  TaskEdition,
+  TasksFilters,
+} from '../../model/tasks'
+import { Logger } from '../../service/server/logger'
 
 export interface TasksRepository {
   logger: Logger

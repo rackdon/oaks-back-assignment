@@ -1,4 +1,4 @@
-import { PhasesDbRepository } from '../../../repository/phasesDbRepository'
+import { PhasesDbRepository } from '../../../repository/phases/phasesDbRepository'
 import { PhasesService } from '../../../service/phases/phasesService'
 
 export function phasesServiceMock(
