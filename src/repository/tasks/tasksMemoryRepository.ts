@@ -10,7 +10,7 @@ import {
   TaskEdition,
   TasksFilters,
 } from '../../model/tasks'
-import { DataWithPages, Pagination } from '../../model/pagination'
+import { DataWithPages, Pagination, SortDir } from '../../model/pagination'
 import { randomUUID } from 'crypto'
 import { Logger } from '../../service/server/logger'
 import { getPages } from '../pagination'
@@ -55,13 +55,45 @@ export class TasksMemoryRepository implements TasksRepository {
     return EitherI.Right(task || null)
   }
 
+  // TODO For the moment only sort by one param will be applied
+  private getSort(
+    sort: string,
+    sortDir: SortDir
+  ): (a: Task, b: Task) => number {
+    return (a: Task, b: Task): number => {
+      switch (sortDir) {
+        case 'ASC':
+          return a[sort] < b[sort] ? -1 : 1
+        case 'DESC':
+          return a[sort] < b[sort] ? 1 : -1
+        default:
+          return a[sort] < b[sort] ? 1 : -1
+      }
+    }
+  }
+
+  private getFilters(filters: TasksFilters): (task: Task) => boolean {
+    return (task: Task) => {
+      return (
+        (filters.name ? task.name === filters.name : true) &&
+        (filters.done ? task.done === filters.done : true) &&
+        (filters.phaseId ? task.phaseId === filters.phaseId : true)
+      )
+    }
+  }
+
   async getTasks(
     filters: TasksFilters,
     pagination: Pagination
   ): Promise<Either<ApiError, DataWithPages<Task>>> {
-    const filteredTasks = this.memoryClient.getTasks()
+    const filteredTasks = this.memoryClient
+      .getTasks()
+      .filter(this.getFilters(filters))
+      .sort(this.getSort(pagination.sort[0], pagination.sortDir || 'DESC'))
+    const startTask = pagination.page * pagination.pageSize
+    const endTask = startTask + pagination.pageSize
     return EitherI.Right({
-      data: filteredTasks,
+      data: filteredTasks.slice(startTask, endTask),
       pages: getPages(filteredTasks.length, pagination.pageSize),
     })
   }

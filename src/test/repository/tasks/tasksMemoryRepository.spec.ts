@@ -7,6 +7,7 @@ import {
   generateTaskCreation,
 } from '../../utils/generators/tasksGenerator'
 import { TasksMemoryRepository } from '../../../repository/tasks/tasksMemoryRepository'
+import { Pagination } from '../../../model/pagination'
 
 describe('Insert task', () => {
   const loggerConfig = new LoggerConfig().create()
@@ -55,6 +56,93 @@ describe('Update task', () => {
     const result = await tasksRepository.updateTask(randomUUID(), taskEdition)
     expectRight(result).toEqual(null)
     expect(memoryClient.getTasks()).toEqual([])
+  })
+})
+
+describe('Get tasks', () => {
+  const loggerConfig = new LoggerConfig().create()
+  it('Returns  paginated tasks', async () => {
+    const memoryClient = new MemoryClient(loggerConfig)
+    const tasksRepository = new TasksMemoryRepository(
+      memoryClient,
+      loggerConfig
+    )
+    const task1 = generateTask()
+    const task2 = generateTask()
+    const task3 = generateTask()
+    const pagination = {
+      page: 1,
+      pageSize: 1,
+      sort: ['createdOn'],
+      sortDir: null,
+    }
+    memoryClient.getTasks().push(task1, task2, task3)
+    const result = await tasksRepository.getTasks({}, pagination)
+    expectRight(result).toEqual({ data: [task2], pages: 3 })
+  })
+
+  it('Returns  tasks sorted by name with asc sortDir', async () => {
+    const memoryClient = new MemoryClient(loggerConfig)
+    const tasksRepository = new TasksMemoryRepository(
+      memoryClient,
+      loggerConfig
+    )
+    const task1 = generateTask(undefined, undefined, 'b')
+    const task2 = generateTask(undefined, undefined, 'c')
+    const task3 = generateTask(undefined, undefined, 'a')
+    const pagination: Pagination = {
+      page: 0,
+      pageSize: 10,
+      sort: ['name'],
+      sortDir: 'ASC',
+    }
+    memoryClient.getTasks().push(task1, task2, task3)
+    const result = await tasksRepository.getTasks({}, pagination)
+    expectRight(result).toEqual({ data: [task3, task1, task2], pages: 1 })
+  })
+
+  it('Returns  tasks filtered by phaseId and done', async () => {
+    const memoryClient = new MemoryClient(loggerConfig)
+    const tasksRepository = new TasksMemoryRepository(
+      memoryClient,
+      loggerConfig
+    )
+    const phaseId = randomUUID()
+    const task1 = generateTask(undefined, phaseId, 'b', false)
+    const task2 = generateTask(undefined, undefined, 'c', true)
+    const task3 = generateTask(undefined, phaseId, 'a', true)
+    const pagination: Pagination = {
+      page: 0,
+      pageSize: 10,
+      sort: ['createdOn'],
+      sortDir: null,
+    }
+    memoryClient.getTasks().push(task1, task2, task3)
+    const result = await tasksRepository.getTasks(
+      { done: true, phaseId: phaseId },
+      pagination
+    )
+    expectRight(result).toEqual({ data: [task3], pages: 1 })
+  })
+
+  it('Returns  tasks filtered by name', async () => {
+    const memoryClient = new MemoryClient(loggerConfig)
+    const tasksRepository = new TasksMemoryRepository(
+      memoryClient,
+      loggerConfig
+    )
+    const task1 = generateTask(undefined, undefined, 'b')
+    const task2 = generateTask(undefined, undefined, 'c')
+    const task3 = generateTask(undefined, undefined, 'a')
+    const pagination: Pagination = {
+      page: 0,
+      pageSize: 10,
+      sort: ['createdOn'],
+      sortDir: null,
+    }
+    memoryClient.getTasks().push(task1, task2, task3)
+    const result = await tasksRepository.getTasks({ name: 'c' }, pagination)
+    expectRight(result).toEqual({ data: [task2], pages: 1 })
   })
 })
 
