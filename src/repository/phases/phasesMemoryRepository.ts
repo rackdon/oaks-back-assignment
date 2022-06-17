@@ -10,7 +10,7 @@ import {
   PhasesFilters,
   PhaseWithTasks,
 } from '../../model/phases'
-import { DataWithPages, Pagination } from '../../model/pagination'
+import { DataWithPages, Pagination, SortDir } from '../../model/pagination'
 import { MemoryClient } from '../../client/database/memoryClient'
 import winston from 'winston'
 import { Sequelize } from 'sequelize'
@@ -66,18 +66,6 @@ export class PhasesMemoryRepository implements PhasesRepository {
     return EitherI.Right(phase || null)
   }
 
-  async getPhases(
-    projection: PhaseProjection,
-    filters: PhasesFilters,
-    pagination: Pagination
-  ): Promise<Either<ApiError, DataWithPages<Phase>>> {
-    const filteredPhases = this.memoryClient.getPhases()
-    return EitherI.Right({
-      data: filteredPhases,
-      pages: getPages(filteredPhases.length, pagination.pageSize),
-    })
-  }
-
   private enrichPhase(phase: PhaseRaw): PhaseWithTasks {
     const tasks: Omit<Task, 'phaseId'>[] = this.memoryClient
       .getTasks()
@@ -86,6 +74,59 @@ export class PhasesMemoryRepository implements PhasesRepository {
         return { id, name, done, createdOn, updatedOn }
       })
     return { ...phase, tasks: tasks }
+  }
+  // TODO For the moment only sort by one param will be applied
+  private getSort(
+    sort: string,
+    sortDir: SortDir
+  ): (a: PhaseRaw, b: PhaseRaw) => number {
+    return (a: PhaseRaw, b: PhaseRaw): number => {
+      switch (sortDir) {
+        case 'ASC':
+          return a[sort] < b[sort] ? -1 : 1
+        case 'DESC':
+          return a[sort] < b[sort] ? 1 : -1
+        default:
+          return a[sort] < b[sort] ? 1 : -1
+      }
+    }
+  }
+
+  private getFilters(filters: PhasesFilters): (phase: PhaseRaw) => boolean {
+    return (phase: PhaseRaw) => {
+      return (
+        (filters.name ? phase.name === filters.name : true) &&
+        (filters.done ? phase.done === filters.done : true) &&
+        (filters.createdBefore
+          ? phase.createdOn < filters.createdBefore
+          : true) &&
+        (filters.createdAfter ? phase.createdOn > filters.createdAfter : true)
+      )
+    }
+  }
+
+  async getPhases(
+    projection: PhaseProjection,
+    filters: PhasesFilters,
+    pagination: Pagination
+  ): Promise<Either<ApiError, DataWithPages<Phase>>> {
+    const filteredPhases = this.memoryClient
+      .getPhases()
+      .filter(this.getFilters(filters))
+      .sort(this.getSort(pagination.sort[0], pagination.sortDir || 'DESC'))
+    const startPhase = pagination.page * pagination.pageSize
+    const endPhase = startPhase + pagination.pageSize
+    const slicedPhases = filteredPhases.slice(startPhase, endPhase)
+    const finalPhases =
+      projection === 'PhaseRaw'
+        ? slicedPhases
+        : slicedPhases.map((phase) => {
+            return this.enrichPhase(phase)
+          })
+    return EitherI.Right({
+      data: finalPhases,
+      pages: getPages(filteredPhases.length, pagination.pageSize),
+    })
   }
 
   async getPhaseById(
