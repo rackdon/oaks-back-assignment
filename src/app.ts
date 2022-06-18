@@ -11,6 +11,12 @@ import {
 } from './dependencyInjection/configInjections'
 import { serverHealth } from './dependencyInjection/serverHealthInjections'
 import { graphRoutes, routes } from './dependencyInjection/routesInjections'
+import * as fs from 'fs'
+import { parse } from 'yaml'
+import { setup, serve } from 'swagger-ui-express'
+
+const swaggerData = fs.readFileSync('./swagger.yml', 'utf8')
+const swaggerDocument = parse(swaggerData)
 
 const app: express.Application = express()
 const server = http.createServer(app)
@@ -27,6 +33,7 @@ createTerminus(server, {
   onShutdown: serverHealth.onShutdown,
 })
 
+app.use('/api-docs', serve, setup(swaggerDocument))
 app.use('/api', express.json(), routes.router)
 app.use('/graph', graphRoutes.router)
 
