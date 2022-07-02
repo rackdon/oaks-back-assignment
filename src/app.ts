@@ -13,6 +13,7 @@ import { graphRoutes, routes } from './dependencyInjection/routesInjections'
 import * as fs from 'fs'
 import { parse } from 'yaml'
 import { setup, serve } from 'swagger-ui-express'
+import cors from 'cors'
 
 const swaggerData = fs.readFileSync('./swagger.yml', 'utf8')
 const swaggerDocument = parse(swaggerData)
@@ -21,19 +22,7 @@ const app: express.Application = express()
 const server = http.createServer(app)
 sentryConfig.init(app)
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Content-Type, Authorization, Content-Length, X-Requested-With'
-  )
-
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
-  } else {
-    next()
-  }
-})
+app.use(cors())
 app.use(morgan('common'))
 app.use(helmet({ contentSecurityPolicy: false }))
 app.use(compression())
