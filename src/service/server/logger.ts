@@ -9,16 +9,16 @@ export class Logger {
     this.logger = logger
   }
 
-  debug(msg: string, e?): void {
+  debug(msg: string, e?: unknown): void {
     this.logger.debug(`[${this.service}]: ${msg}`, e)
   }
-  info(msg: string, e?): void {
+  info(msg: string, e?: unknown): void {
     this.logger.info(`[${this.service}]: ${msg}`, e)
   }
-  warn(msg: string, e?): void {
+  warn(msg: string, e?: unknown): void {
     this.logger.warn(`[${this.service}]: ${msg}`, e)
   }
-  error(msg: string, e?): void {
+  error(msg: string, e?: unknown): void {
     this.logger.error(`[${this.service}]: ${msg}`, e)
   }
 }
