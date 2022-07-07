@@ -4,7 +4,7 @@ import {
   GraphQLScalarType,
   GraphQLString,
 } from 'graphql'
-import { GraphQLUUID } from 'graphql-scalars'
+import { GraphQLDate, GraphQLUUID } from 'graphql-scalars'
 
 export const dateScalarType = new GraphQLScalarType({
   name: 'Date',
@@ -44,7 +44,7 @@ export function getTaskType(
     name: name,
     fields: {
       id: { type: GraphQLUUID },
-      phaseId: { type: GraphQLString },
+      phaseId: { type: GraphQLUUID },
       name: { type: GraphQLString },
       done: { type: GraphQLBoolean },
       createdOn: {

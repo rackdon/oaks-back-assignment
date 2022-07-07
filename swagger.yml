@@ -1,0 +1,478 @@
+openapi: '3.0.0'
+info:
+  description:
+  version: 1.0.0
+  title: Oaks Api
+#schemes:
+#  - http
+#basePath: "/api"
+paths:
+  "/api/phases":
+    get:
+      summary: Get all phases
+      description: Get all the phases
+      tags:
+        - phases
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: done
+          schema:
+            type: boolean
+        - in: query
+          name: createdBefore
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: createdAfter
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: projection
+          schema:
+            type: string
+            enum:
+              - PhaseRaw
+              - PhaseWithTasks
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+        - in: query
+          name: sort
+          schema:
+            type: string
+        - in: query
+          name: sortDir
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/PaginatedPhase'
+                  - $ref: '#/components/schemas/PaginatedPhaseWithTasks'
+
+        '400':
+          description: invalid params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: internal error
+    post:
+      summary: Creates a new phase.
+      tags:
+        - phases
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhaseCreation'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseRaw'
+        '409':
+          description: conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: internal error
+  "/api/phases/{phaseId}":
+    get:
+      summary: Get the phase
+      description: Get the phase
+      tags:
+        - phases
+      parameters:
+        - in: path
+          name: phaseId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projection
+          schema:
+            type: string
+            enum:
+              - PhaseRaw
+              - PhaseWithTasks
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/PhaseRaw'
+                  - $ref: '#/components/schemas/PhaseWithTasks'
+
+        '400':
+          description: invalid params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: not found
+        '500':
+          description: internal error
+    patch:
+      summary: Edit the phase.
+      tags:
+        - phases
+      parameters:
+        - in: path
+          name: phaseId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhaseEdition'
+      responses:
+        '200':
+          description: edited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseRaw'
+        '400':
+          description: invalid params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: not found
+        '409':
+          description: conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: internal error
+    delete:
+      summary: Delete the phase.
+      tags:
+        - phases
+      parameters:
+        - in: path
+          name: phaseId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: deleted
+        '403':
+          description: forbidden
+        '500':
+          description: internal error
+  "/api/tasks":
+    get:
+      summary: Get all tasks
+      description: Get all tasks
+      tags:
+        - tasks
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: done
+          schema:
+            type: boolean
+        - in: query
+          name: phaseId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+        - in: query
+          name: sort
+          schema:
+            type: string
+        - in: query
+          name: sortDir
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTask'
+
+        '400':
+          description: invalid params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: internal error
+    post:
+      summary: Creates a new task.
+      tags:
+        - tasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreation'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: internal error
+  "/api/tasks/{taskId}":
+    get:
+      summary: Get the task
+      description: Get the task
+      tags:
+        - tasks
+      parameters:
+        - in: path
+          name: taskId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+        '400':
+          description: invalid params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: not found
+        '500':
+          description: internal error
+    patch:
+      summary: Edit the task.
+      tags:
+        - tasks
+      parameters:
+        - in: path
+          name: taskId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskEdition'
+      responses:
+        '200':
+          description: edited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: invalid params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: not found
+        '500':
+          description: internal error
+    delete:
+      summary: Delete the task.
+      tags:
+        - tasks
+      parameters:
+        - in: path
+          name: taskId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: deleted
+        '500':
+          description: internal error
+components:
+  schemas:
+    PhaseRaw:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        done:
+          type: boolean
+        createdOn:
+          type: string
+          format: date-time
+        updatedOn:
+          type: string
+          format: date-time
+    PhaseWithTasks:
+      allOf:
+        - $ref: '#/components/schemas/PhaseRaw'
+        - type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/BaseTask'
+    BaseTask:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        done:
+          type: boolean
+        createdOn:
+          type: string
+          format: date-time
+        updatedOn:
+          type: string
+          format: date-time
+    Task:
+      allOf:
+        - $ref: '#/components/schemas/BaseTask'
+        - type: object
+          properties:
+            phaseId:
+              type: string
+              format: uuid
+    PhaseCreation:
+      type: object
+      properties:
+        name:
+          required: true
+          type: string
+    PhaseEdition:
+      type: object
+      properties:
+        name:
+          type: string
+          required: false
+        done:
+          type: boolean
+          required: false
+    TaskCreation:
+      type: object
+      properties:
+        name:
+          required: true
+          type: string
+        phaseId:
+          required: true
+          type: string
+          format: uuid
+    TaskEdition:
+      type: object
+      properties:
+        name:
+          type: string
+          required: false
+        done:
+          type: boolean
+          required: false
+    PaginatedPhase:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhaseRaw'
+        pages:
+          type: integer
+
+    PaginatedPhaseWithTasks:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhaseWithTasks'
+        pages:
+          type: integer
+
+    PaginatedTask:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        pages:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items: { type: string }
+
