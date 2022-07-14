@@ -1,5 +1,5 @@
 # oaks-back-assignment
-Oak's Lab backend assignment 
+backend assignment 
 
 # Table of Contents
 1. [Requirements](#requirements)
